@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:internet_lock/views/addWebsite.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(new MaterialApp(
+    home: new MyApp(),
+    routes: <String, WidgetBuilder>{
+      '/addWebsite': (BuildContext context) => new AddWebsite(),
+    },
+  ));
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -96,5 +104,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   // Load add website form
-  void _addWebsiteClick() {}
+  void _addWebsiteClick() {
+    Navigator.of(context).pushNamed('/addWebsite');
+  }
 }
