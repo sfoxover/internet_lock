@@ -1,6 +1,5 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
 class AddWebsite extends StatefulWidget {
   AddWebsite({Key key}) : super(key: key);
@@ -9,25 +8,13 @@ class AddWebsite extends StatefulWidget {
 }
 
 class _AddWebsiteState extends State<AddWebsite> {
-
-  final Completer<WebViewController> _controller = Completer<WebViewController>();
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text('Add new website'),
+    return WebviewScaffold(
+      url: 'https://www.bing.com/',
+      appBar: new AppBar(
+        title: new Text("Add Website"),
         actions: _getAppBarButtons(),
-      ),
-     body: 
-     WebView(
-        initialUrl: 'https://www.bing.com/',
-        javascriptMode: JavascriptMode.unrestricted,
-        onWebViewCreated: (WebViewController webViewController) {
-          _controller.complete(webViewController);
-        },
       ),
     );
   }
