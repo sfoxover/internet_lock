@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class AddWebsite extends StatefulWidget {
   AddWebsite({Key key}) : super(key: key);
@@ -7,6 +9,9 @@ class AddWebsite extends StatefulWidget {
 }
 
 class _AddWebsiteState extends State<AddWebsite> {
+
+  final Completer<WebViewController> _controller = Completer<WebViewController>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,15 +21,13 @@ class _AddWebsiteState extends State<AddWebsite> {
         title: Text('Add new website'),
         actions: _getAppBarButtons(),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Test App',
-            ),
-          ],
-        ),
+     body: 
+     WebView(
+        initialUrl: 'https://www.bing.com/',
+        javascriptMode: JavascriptMode.unrestricted,
+        onWebViewCreated: (WebViewController webViewController) {
+          _controller.complete(webViewController);
+        },
       ),
     );
   }
@@ -32,21 +35,29 @@ class _AddWebsiteState extends State<AddWebsite> {
   // Display AppBar buttons dependent on admin logged in
   _getAppBarButtons() {
     List<Widget> results = [];
-    // Add new website button
+    // Save button
     results.add(RaisedButton.icon(
-        icon: const Icon(Icons.library_add, size: 18.0, color: Colors.white),
-        color: Theme.of(context).primaryColor,
-        label: Text('Add website',
-            style: TextStyle(color: Colors.white, fontSize: 16.0)),
-        onPressed: null));
-    // Parent logout button
-    results.add(RaisedButton.icon(
-        icon: const Icon(Icons.lock_open, size: 18.0, color: Colors.white),
+        icon: const Icon(Icons.save_alt, size: 18.0, color: Colors.white),
         color: Theme.of(context).primaryColor,
         label:
-            Text('Lock', style: TextStyle(color: Colors.white, fontSize: 16.0)),
-        onPressed: null));
+            Text('Save', style: TextStyle(color: Colors.white, fontSize: 16.0)),
+        onPressed: _save));
+    // Cancel button
+    results.add(RaisedButton.icon(
+        icon: const Icon(Icons.cancel, size: 18.0, color: Colors.white),
+        color: Theme.of(context).primaryColor,
+        label: Text('Cancel',
+            style: TextStyle(color: Colors.white, fontSize: 16.0)),
+        onPressed: _cancel));
 
     return results;
+  }
+
+// Validate and save new website
+  void _save() {}
+
+// Cancel adding new website
+  void _cancel() {
+    Navigator.of(context).pop();
   }
 }

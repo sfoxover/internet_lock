@@ -1,14 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:internet_lock/views/addWebsite.dart';
 
-void main() {
-  runApp(new MaterialApp(
-    home: new MyApp(),
-    routes: <String, WidgetBuilder>{
-      '/addWebsite': (BuildContext context) => new AddWebsite(),
-    },
-  ));
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
@@ -19,6 +12,9 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.purple,
       ),
       home: MainPage(title: 'Your Websites'),
+       routes: <String, WidgetBuilder>{
+      '/addWebsite': (BuildContext context) => new AddWebsite(),
+    },
     );
   }
 }
