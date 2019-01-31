@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:internet_lock/helpers/defines.dart';
+import 'package:internet_lock/helpers/helpers.dart';
 
 class AddWebsite extends StatefulWidget {
   AddWebsite({Key key}) : super(key: key);
@@ -27,7 +29,7 @@ class _AddWebsiteState extends State<AddWebsite> {
   @override
   Widget build(BuildContext context) {
     return WebviewScaffold(
-      url: 'https://www.bing.com/',
+      url: Defines.SEARCH_URL,
       initialChild: Container(
         child: const Center(
           child: Text('Loading.....'),
@@ -49,7 +51,7 @@ class _AddWebsiteState extends State<AddWebsite> {
         color: Theme.of(context).primaryColor,
         label: Text('Add site',
             style: TextStyle(color: Colors.white, fontSize: 16.0)),
-        onPressed: _save));
+        onPressed: _addSite));
     // Cancel button
     results.add(RaisedButton.icon(
         icon: const Icon(Icons.cancel, size: 18.0, color: Colors.white),
@@ -68,7 +70,26 @@ class _AddWebsiteState extends State<AddWebsite> {
   }
 
   // Validate and save new website
-  void _save() {}
+  void _addSite() async {
+    // Check for empty site
+    if (_websiteUrl.isEmpty) {
+      Helpers.displayAlert(
+          "Error, please wait until your selected site is loaded, then click this button.",
+          context);
+    } else if (Helpers.isSearchUriMatch(_websiteUrl)) {
+      // Do not save url if its a search result
+      Helpers.displayAlert(
+          "Error, please click the search result link you want and select the site after its loaded.",
+          context);
+    } else {
+      // Save new sites
+      var bOK = await _saveSite();
+      if (!bOK) {
+        // TODO change to manual entry page
+
+      }
+    }
+  }
 
   // Cancel adding new website
   void _cancel() {
@@ -85,4 +106,6 @@ class _AddWebsiteState extends State<AddWebsite> {
     _websiteTitle =
         await flutterWebviewPlugin.evalJavascript("window.document.title");
   }
+
+  _saveSite() async {}
 }
