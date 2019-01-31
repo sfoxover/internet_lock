@@ -29,7 +29,6 @@ class _AddWebsiteState extends State<AddWebsite> {
     return WebviewScaffold(
       url: 'https://www.bing.com/',
       initialChild: Container(
-        color: Colors.redAccent,
         child: const Center(
           child: Text('Loading.....'),
         ),
