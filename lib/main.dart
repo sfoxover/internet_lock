@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internet_lock/helpers/helpers.dart';
 import 'package:internet_lock/views/addWebsite.dart';
 
 void main() => runApp(MyApp());

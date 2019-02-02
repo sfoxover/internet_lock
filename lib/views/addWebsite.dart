@@ -74,13 +74,17 @@ class _AddWebsiteState extends State<AddWebsite> {
     // Check for empty site
     if (_websiteUrl.isEmpty) {
       Helpers.displayAlert(
-          "Error, please wait until your selected site is loaded, then click this button.",
-          context);
+        context,
+        "Error",
+        "please wait until your selected site is loaded, then click this button.",
+      );
     } else if (Helpers.isSearchUriMatch(_websiteUrl)) {
       // Do not save url if its a search result
       Helpers.displayAlert(
-          "Error, please click the search result link you want and select the site after its loaded.",
-          context);
+        context,
+        "Error",
+        "please click the search result link you want and select the site after its loaded.",
+      );
     } else {
       // Save new sites
       var bOK = await _saveSite();
