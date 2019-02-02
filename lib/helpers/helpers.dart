@@ -14,8 +14,9 @@ class Helpers {
       return false;
   }
 
-  // Display alert message box
+  // Display alert message snackbar
   static displayAlert(BuildContext context, String title, String message) {
+    // flutter defined function
     showDialog(
         context: context,
         builder: (BuildContext context) {
