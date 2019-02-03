@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:internet_lock/helpers/defines.dart';
 import 'package:internet_lock/helpers/helpers.dart';
+import 'package:internet_lock/views/addWebsiteAdvanced.dart';
 
 class AddWebsite extends StatefulWidget {
   AddWebsite({Key key}) : super(key: key);
@@ -10,8 +11,6 @@ class AddWebsite extends StatefulWidget {
 }
 
 class _AddWebsiteState extends State<AddWebsite> {
-// Properties
-
   // Website url
   String _websiteUrl;
   // Website title
@@ -19,8 +18,7 @@ class _AddWebsiteState extends State<AddWebsite> {
   // Webview instance
   final flutterWebviewPlugin = new FlutterWebviewPlugin();
 
-// Methods
-
+  // Constructor
   _AddWebsiteState() {
     // Listen for url changed event
     flutterWebviewPlugin.onUrlChanged.listen(onUrlChanged);
@@ -49,7 +47,7 @@ class _AddWebsiteState extends State<AddWebsite> {
     results.add(RaisedButton.icon(
         icon: const Icon(Icons.save_alt, size: 18.0, color: Colors.white),
         color: Theme.of(context).primaryColor,
-        label: Text('Add site',
+        label: Text('Save site',
             style: TextStyle(color: Colors.white, fontSize: 16.0)),
         onPressed: _addSite));
     // Cancel button
@@ -65,43 +63,63 @@ class _AddWebsiteState extends State<AddWebsite> {
         color: Theme.of(context).primaryColor,
         label: Text('Advanced',
             style: TextStyle(color: Colors.white, fontSize: 16.0)),
-        onPressed: _advancedOptions));
+        onPressed: _showAdvancedPage));
     return results;
   }
 
   // Validate and save new website
   void _addSite() async {
+    if (_validateUserInput()) {
+      // Save new sites
+      var bOK = await _saveSite();
+      if (bOK) {}
+    }
+  }
+
+  // Verify user input is valid
+  bool _validateUserInput() {
+    var bOK = false;
     // Check for empty site
     if (_websiteUrl.isEmpty) {
       Helpers.displayAlert(
         context,
         "Error",
-        "please wait until your selected site is loaded, then click this button.",
+        "Please wait until your selected site is loaded, then click this button.",
       );
     } else if (Helpers.isSearchUriMatch(_websiteUrl)) {
       // Do not save url if its a search result
       Helpers.displayAlert(
         context,
         "Error",
-        "please click the search result link you want and select the site after its loaded.",
+        "Please click the search result link you want and select the site after its loaded.",
       );
+    } else if (_websiteTitle.isEmpty) {
+      // Do not save if no title was loaded
+      Helpers.displayAlert(
+        context,
+        "Error",
+        "Unable to load title from the selected website. Please type in the title of the website manually.",
+      );
+      _showAdvancedPage();
     } else {
-      // Save new sites
-      var bOK = await _saveSite();
-      if (!bOK) {
-        // TODO change to manual entry page
-
-      }
+      bOK = true;
     }
+    return bOK;
+  }
+
+  // Show advanced settings page
+  void _showAdvancedPage() {
+    Navigator.of(context).pop();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AddWebsiteAdvanced(websiteUrl: _websiteUrl, websiteTitle: _websiteTitle)),
+    );
   }
 
   // Cancel adding new website
   void _cancel() {
     Navigator.of(context).pop();
   }
-
-  // Show advances options page
-  void _advancedOptions() {}
 
   // Listen for url changed event
   void onUrlChanged(String url) async {
@@ -111,5 +129,8 @@ class _AddWebsiteState extends State<AddWebsite> {
         await flutterWebviewPlugin.evalJavascript("window.document.title");
   }
 
-  _saveSite() async {}
+  // Save details to database
+  Future<bool> _saveSite() async {
+    return false;
+  }
 }
