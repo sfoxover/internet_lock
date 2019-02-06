@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:internet_lock/models/website.dart';
 import 'package:internet_lock/models/websitesBloc.dart';
 import 'package:internet_lock/views/addWebsite.dart';
+import 'package:internet_lock/views/loadWebsite.dart';
 
 void main() => runApp(MyApp());
 
@@ -16,6 +17,7 @@ class MyApp extends StatelessWidget {
       home: MainPage(title: 'Your Websites'),
       routes: <String, WidgetBuilder>{
         '/addWebsite': (BuildContext context) => new AddWebsite(),
+        '/loadWebsite': (BuildContext context) => new LoadWebsite(),
       },
     );
   }
@@ -138,10 +140,16 @@ class _MainPageState extends State<MainPage> {
       itemBuilder: (BuildContext context, int index) {
         Website item = snapshot.data[index];
         return ListTile(
-            title: Text(item.title), 
-            leading: Image.network(item.favIconUrl)
+          title: Text(item.title),
+          leading: Image.network(item.favIconUrl),
+          onTap: _loadWebsite(item),
         );
       },
     );
+  }
+
+  // Load selected web site
+  _loadWebsite(Website item) {
+    Navigator.of(context).pushNamed('/loadWebsite/$item.startUrl');
   }
 }
