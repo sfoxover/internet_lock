@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internet_lock/helpers/defines.dart';
 import 'package:internet_lock/models/website.dart';
 import 'package:internet_lock/models/websitesBloc.dart';
 import 'package:internet_lock/views/addWebsite.dart';
@@ -17,7 +18,6 @@ class MyApp extends StatelessWidget {
       home: MainPage(title: 'Your Websites'),
       routes: <String, WidgetBuilder>{
         '/addWebsite': (BuildContext context) => new AddWebsite(),
-        '/loadWebsite': (BuildContext context) => new LoadWebsite(),
       },
     );
   }
@@ -51,6 +51,7 @@ class _MainPageState extends State<MainPage> {
         ),
         body: StreamBuilder<List<Website>>(
             stream: bloc.websites,
+            // initialData: _getEmptyWebsiteList(),
             builder:
                 (BuildContext context, AsyncSnapshot<List<Website>> snapshot) {
               if (snapshot.hasData) {
@@ -142,7 +143,9 @@ class _MainPageState extends State<MainPage> {
         return ListTile(
           title: Text(item.title),
           leading: Image.network(item.favIconUrl),
-          onTap: _loadWebsite(item),
+          onTap: () {
+            _loadWebsite(item);
+          },
         );
       },
     );
@@ -150,6 +153,22 @@ class _MainPageState extends State<MainPage> {
 
   // Load selected web site
   _loadWebsite(Website item) {
-    Navigator.of(context).pushNamed('/loadWebsite/$item.startUrl');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LoadWebsite(website: item),
+      ),
+    );
+  }
+
+  // Return placehold website
+  _getEmptyWebsiteList() {
+    var sites = new List<Website>();
+    var site = new Website();
+    site.id = -1;
+    site.title = "Click unlock to add a new website.";
+    site.favIconUrl = Defines.SEARCH_FAV_ICON_URL;
+    sites.add(site);
+    return sites;
   }
 }

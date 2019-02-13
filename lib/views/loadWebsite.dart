@@ -1,8 +1,12 @@
 
 import 'package:flutter/material.dart';
+import 'package:internet_lock/models/website.dart';
 
 class LoadWebsite extends StatefulWidget {
-  LoadWebsite({Key key}) : super(key: key);
+  
+  final Website website;
+
+  LoadWebsite({Key key, this.website}) : super(key: key);
   @override
   _LoadWebsiteState createState() => _LoadWebsiteState();
 }
