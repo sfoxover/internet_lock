@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:internet_lock/helpers/defines.dart';
 import 'package:internet_lock/helpers/helpers.dart';
+import 'package:internet_lock/models/website.dart';
+import 'package:internet_lock/models/websiteDbProvider.dart';
 import 'package:internet_lock/views/addWebsiteAdvanced.dart';
 
 class AddWebsite extends StatefulWidget {
@@ -67,15 +69,6 @@ class _AddWebsiteState extends State<AddWebsite> {
     return results;
   }
 
-  // Validate and save new website
-  void _addSite() async {
-    if (_validateUserInput()) {
-      // Save new sites
-      var bOK = await _saveSite();
-      if (bOK) {}
-    }
-  }
-
   // Verify user input is valid
   bool _validateUserInput() {
     var bOK = false;
@@ -107,12 +100,24 @@ class _AddWebsiteState extends State<AddWebsite> {
     return bOK;
   }
 
+  // Validate and save new website
+  void _addSite() async {
+    if (_validateUserInput()) {
+      // Save to database
+      Website site = new Website(title: _websiteTitle, startUrl: _websiteUrl);
+      WebsiteDBProvider.db.addWebsite(site);
+      Navigator.of(context).popUntil(ModalRoute.withName('/'));
+    }
+  }
+
   // Show advanced settings page
   void _showAdvancedPage() {
     Navigator.of(context).pop();
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => AddWebsiteAdvanced(websiteUrl: _websiteUrl, websiteTitle: _websiteTitle)),
+      MaterialPageRoute(
+          builder: (context) => AddWebsiteAdvanced(
+              websiteUrl: _websiteUrl, websiteTitle: _websiteTitle)),
     );
   }
 
@@ -127,10 +132,6 @@ class _AddWebsiteState extends State<AddWebsite> {
     // Find page title
     _websiteTitle =
         await flutterWebviewPlugin.evalJavascript("window.document.title");
-  }
-
-  // Save details to database
-  Future<bool> _saveSite() async {
-    return false;
+    _websiteTitle = _websiteTitle.replaceAll('"', '');
   }
 }
