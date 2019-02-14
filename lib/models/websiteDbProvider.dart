@@ -6,9 +6,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 class WebsiteDBProvider {
-  WebsiteDBProvider._();
-
-  static final WebsiteDBProvider instance = WebsiteDBProvider._();
 
   Database _database;
 

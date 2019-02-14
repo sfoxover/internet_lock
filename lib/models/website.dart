@@ -29,7 +29,7 @@ class Website {
     this.allowedUrls,
   }) {
     if (id == null) id = 0;
-    if (favIconUrl == null || favIconUrl.isEmpty) {
+    if (startUrl != null && startUrl.isNotEmpty && favIconUrl.isEmpty) {
       var uri = Uri.parse(startUrl);
       uri = uri.replace(path: "favicon.ico", query: "");
       favIconUrl = uri.toString();

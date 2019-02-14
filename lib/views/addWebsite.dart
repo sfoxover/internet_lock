@@ -3,7 +3,6 @@ import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:internet_lock/helpers/defines.dart';
 import 'package:internet_lock/helpers/helpers.dart';
 import 'package:internet_lock/models/website.dart';
-import 'package:internet_lock/models/websiteDbProvider.dart';
 import 'package:internet_lock/models/websitesBloc.dart';
 import 'package:internet_lock/views/addWebsiteAdvanced.dart';
 

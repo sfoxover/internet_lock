@@ -54,7 +54,7 @@ class _MainPageState extends State<MainPage> {
               if (snapshot.hasData) {
                 return _getWebsitesView(snapshot);
               } else {
-                return Center(child: CircularProgressIndicator());
+                return _getEmptyWebsiteList();
               }
             }));
   }
@@ -160,12 +160,26 @@ class _MainPageState extends State<MainPage> {
 
   // Return placehold website
   _getEmptyWebsiteList() {
+
     var sites = new List<Website>();
     var site = new Website();
     site.id = -1;
     site.title = "Click unlock to add a new website.";
     site.favIconUrl = Defines.SEARCH_FAV_ICON_URL;
     sites.add(site);
-    return sites;
+    
+    return ListView.builder(
+      itemCount: sites.length,
+      itemBuilder: (BuildContext context, int index) {
+        Website item = sites[index];
+        return ListTile(
+          title: Text(item.title),
+          leading: Image.network(item.favIconUrl),
+          onTap: () {
+            _parentLogonClick();
+          },
+        );
+      },
+    );
   }
 }
