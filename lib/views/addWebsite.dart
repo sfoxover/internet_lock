@@ -4,6 +4,7 @@ import 'package:internet_lock/helpers/defines.dart';
 import 'package:internet_lock/helpers/helpers.dart';
 import 'package:internet_lock/models/website.dart';
 import 'package:internet_lock/models/websiteDbProvider.dart';
+import 'package:internet_lock/models/websitesBloc.dart';
 import 'package:internet_lock/views/addWebsiteAdvanced.dart';
 
 class AddWebsite extends StatefulWidget {
@@ -105,7 +106,7 @@ class _AddWebsiteState extends State<AddWebsite> {
     if (_validateUserInput()) {
       // Save to database
       Website site = new Website(title: _websiteTitle, startUrl: _websiteUrl);
-      WebsiteDBProvider.db.addWebsite(site);
+      WebsitesBloc.instance.add(site);
       Navigator.of(context).popUntil(ModalRoute.withName('/'));
     }
   }

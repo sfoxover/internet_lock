@@ -8,7 +8,7 @@ import 'package:sqflite/sqflite.dart';
 class WebsiteDBProvider {
   WebsiteDBProvider._();
 
-  static final WebsiteDBProvider db = WebsiteDBProvider._();
+  static final WebsiteDBProvider instance = WebsiteDBProvider._();
 
   Database _database;
 

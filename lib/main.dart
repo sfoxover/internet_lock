@@ -37,9 +37,6 @@ class _MainPageState extends State<MainPage> {
   // Is admin logged in
   bool _adminLoggedIn = false;
 
-  // Load websites with BLOC pattern
-  final bloc = WebsitesBloc();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,8 +47,8 @@ class _MainPageState extends State<MainPage> {
           actions: _getAppBarButtons(),
         ),
         body: StreamBuilder<List<Website>>(
-            stream: bloc.websites,
-            // initialData: _getEmptyWebsiteList(),
+            stream: WebsitesBloc.instance.websites,
+            // initialData: () {_getEmptyWebsiteList(); },
             builder:
                 (BuildContext context, AsyncSnapshot<List<Website>> snapshot) {
               if (snapshot.hasData) {

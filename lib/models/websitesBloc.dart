@@ -4,6 +4,9 @@ import 'package:internet_lock/models/website.dart';
 import 'package:internet_lock/models/websiteDbProvider.dart';
 
 class WebsitesBloc {
+  WebsitesBloc._();
+  static final WebsitesBloc instance = WebsitesBloc._();
+
   final _clientController = StreamController<List<Website>>.broadcast();
 
   get websites => _clientController.stream;
@@ -13,7 +16,7 @@ class WebsitesBloc {
   }
 
   getWebsites() async {
-    _clientController.sink.add(await WebsiteDBProvider.db.getAllWebsites());
+    _clientController.sink.add(await WebsiteDBProvider.instance.getAllWebsites());
   }
 
   WebsitesBloc() {
@@ -21,12 +24,12 @@ class WebsitesBloc {
   }
 
   delete(int id) {
-    WebsiteDBProvider.db.deleteClient(id);
+    WebsiteDBProvider.instance.deleteClient(id);
     getWebsites();
   }
 
   add(Website item) {
-    WebsiteDBProvider.db.addWebsite(item);
+    WebsiteDBProvider.instance.addWebsite(item);
     getWebsites();
   }
 }
