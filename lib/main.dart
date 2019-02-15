@@ -160,14 +160,12 @@ class _MainPageState extends State<MainPage> {
 
   // Return placehold website
   _getEmptyWebsiteList() {
-
     var sites = new List<Website>();
-    var site = new Website();
-    site.id = -1;
-    site.title = "Click unlock to add a new website.";
-    site.favIconUrl = Defines.SEARCH_FAV_ICON_URL;
-    sites.add(site);
-    
+    sites.add(new Website(
+        id: -1,
+        title: "Click unlock to add a new website.",
+        favIconUrl: Defines.SEARCH_FAV_ICON_URL));
+
     return ListView.builder(
       itemCount: sites.length,
       itemBuilder: (BuildContext context, int index) {
