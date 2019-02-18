@@ -27,7 +27,7 @@ class WebsitesBloc {
   }
 
   delete(int id) {
-    _dbProvider.deleteClient(id);
+    _dbProvider.deleteWebsite(id);
     getWebsites();
   }
 

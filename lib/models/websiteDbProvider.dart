@@ -74,7 +74,7 @@ class WebsiteDBProvider {
     }
   }
 
-  deleteClient(int id) async {
+  deleteWebsite(int id) async {
     final db = await database;
     return db.delete("websites", where: "id = ?", whereArgs: [id]);
   }

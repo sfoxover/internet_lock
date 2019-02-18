@@ -24,10 +24,12 @@ class MyApp extends StatelessWidget {
 }
 
 class MainPage extends StatefulWidget {
-  MainPage({Key key, this.title}) : super(key: key);
-
   // Appbar title
   final String title;
+
+  MainPage({Key key, this.title}) : super(key: key) {
+    WebsitesBloc.instance.getWebsites();
+  }
 
   @override
   _MainPageState createState() => _MainPageState();
@@ -36,10 +38,10 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   // Is admin logged in
   bool _adminLoggedIn = false;
-
-  _MainPageState() {
-    WebsitesBloc.instance.getWebsites();
-  }
+  // Selected list item
+  int _selectedIndex = 0;
+  // Selected website item
+  Website _selectedWebsite = null;
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +54,6 @@ class _MainPageState extends State<MainPage> {
         ),
         body: StreamBuilder<List<Website>>(
             stream: WebsitesBloc.instance.websites,
-            // initialData: () {_getEmptyWebsiteList(); },
             builder:
                 (BuildContext context, AsyncSnapshot<List<Website>> snapshot) {
               if (snapshot.hasData) {
@@ -139,24 +140,81 @@ class _MainPageState extends State<MainPage> {
   void _editWebsiteClick() {}
 
   // Delete website clicked
-  void _deleteWebsiteClick() {}
+  void _deleteWebsiteClick() {
+    try {
+      if (_selectedWebsite != null) {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                  title: Text("Are you sure"),
+                  content: SingleChildScrollView(
+                    child: Text(
+                        'You want to delete website "${_selectedWebsite.title}"'),
+                  ),
+                  actions: <Widget>[
+                    new FlatButton(
+                      child: new Text("Yes"),
+                      onPressed: () {
+                        WebsitesBloc.instance.delete(_selectedWebsite.id);
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    new FlatButton(
+                        child: new Text("No"),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        })
+                  ]);
+            });
+      }
+    } catch (ex) {
+      print("Exception in main::_deleteWebsiteClick, ${ex.toString()}");
+    }
+  }
 
   // Load all websites
   _getWebsitesView(AsyncSnapshot<List<Website>> snapshot) {
     try {
+      if (_selectedWebsite == null && snapshot.data.length > 0) {
+        _selectedWebsite = snapshot.data[0];
+      }
       return ListView.builder(
-        itemCount: snapshot.data.length,
-        itemBuilder: (BuildContext context, int index) {
-          Website item = snapshot.data[index];
-          return ListTile(
-            title: Text(item.title),
-            leading: Image.network(item.favIconUrl),
-            onTap: () {
-              _loadWebsite(item);
-            },
-          );
-        },
-      );
+          itemCount: snapshot.data.length,
+          itemBuilder: (BuildContext context, int index) {
+            Website item = snapshot.data[index];
+            // List view item
+            return new Container(
+              color: _selectedIndex == index
+                  ? Theme.of(context).selectedRowColor
+                  : Theme.of(context).scaffoldBackgroundColor,
+              child: ListTile(
+                title: Text(item.title),
+                leading: Image.network(item.favIconUrl),
+                selected: _selectedIndex == index,
+                // Load website button
+                trailing: new SizedBox(
+                    height: 35,
+                    child: RaisedButton.icon(
+                        icon: const Icon(Icons.play_arrow,
+                            size: 35.0, color: Colors.white),
+                        color: Theme.of(context).primaryColor,
+                        label: Text('Load',
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 16.0)),
+                        onPressed: () {
+                          _loadWebsite(item);
+                        })),
+                onTap: () {
+                  setState(() {
+                    _selectedIndex = index;
+                    _selectedWebsite = item;
+                  });
+                  //_loadWebsite(item);
+                },
+              ),
+            );
+          });
     } catch (e) {
       print("Exception in main::_getWebsitesView, ${e.toString()}");
       return null;
