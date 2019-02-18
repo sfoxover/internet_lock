@@ -6,7 +6,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 class WebsiteDBProvider {
-
   Database _database;
 
   Future<Database> get database async {
@@ -32,16 +31,21 @@ class WebsiteDBProvider {
   }
 
   addWebsite(Website site) async {
-    final db = await database;
-    // get the biggest id in the table
-    var table = await db.rawQuery("SELECT MAX(id)+1 as id FROM websites");
-    int id = table.first["id"];
-    //insert to the table using the new id
-    var raw = await db.rawInsert(
-        "INSERT Into websites (id,title,start_url,fav_icon_url,allowed_urls)"
-        " VALUES (?,?,?,?,?)",
-        [id, site.title, site.startUrl, site.favIconUrl, site.allowedUrls]);
-    return raw;
+    try {
+      final db = await database;
+      // get the biggest id in the table
+      var table = await db.rawQuery("SELECT MAX(id)+1 as id FROM websites");
+      int id = table.first["id"];
+      //insert to the table using the new id
+      var raw = await db.rawInsert(
+          "INSERT Into websites (id,title,start_url,fav_icon_url,allowed_urls)"
+          " VALUES (?,?,?,?,?)",
+          [id, site.title, site.startUrl, site.favIconUrl, site.allowedUrls]);
+      return raw;
+    } catch (e) {
+      print("Exception in WebsiteDBProvider::addWebsite, ${e.toString()}");
+      return -1;
+    }
   }
 
   updateClient(Website site) async {
@@ -58,11 +62,16 @@ class WebsiteDBProvider {
   }
 
   Future<List<Website>> getAllWebsites() async {
-    final db = await database;
-    var res = await db.query("websites");
-    List<Website> list =
-        res.isNotEmpty ? res.map((c) => Website.fromJson(c)).toList() : [];
-    return list;
+    try {
+      final db = await database;
+      var res = await db.query("websites");
+      List<Website> list =
+          res.isNotEmpty ? res.map((c) => Website.fromJson(c)).toList() : [];
+      return list;
+    } catch (e) {
+      print("Exception in WebsiteDBProvider::getAllWebsites, ${e.toString()}");
+      return null;
+    }
   }
 
   deleteClient(int id) async {

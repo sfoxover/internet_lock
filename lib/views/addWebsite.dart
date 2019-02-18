@@ -73,7 +73,7 @@ class _AddWebsiteState extends State<AddWebsite> {
   bool _validateUserInput() {
     var bOK = false;
     // Check for empty site
-    if (_websiteUrl.isEmpty) {
+    if (Helpers.isNullOrEmpty(_websiteUrl)) {
       Helpers.displayAlert(
         context,
         "Error",
@@ -86,7 +86,7 @@ class _AddWebsiteState extends State<AddWebsite> {
         "Error",
         "Please click the search result link you want and select the site after its loaded.",
       );
-    } else if (_websiteTitle.isEmpty) {
+    } else if (Helpers.isNullOrEmpty(_websiteTitle)) {
       // Do not save if no title was loaded
       Helpers.displayAlert(
         context,
@@ -102,11 +102,15 @@ class _AddWebsiteState extends State<AddWebsite> {
 
   // Validate and save new website
   void _addSite() async {
-    if (_validateUserInput()) {
-      // Save to database
-      Website site = new Website(title: _websiteTitle, startUrl: _websiteUrl);
-      WebsitesBloc.instance.add(site);
-      Navigator.of(context).popUntil(ModalRoute.withName('/'));
+    try {
+      if (_validateUserInput()) {
+        // Save to database
+        Website site = new Website(title: _websiteTitle, startUrl: _websiteUrl);
+        WebsitesBloc.instance.add(site);
+        Navigator.of(context).popUntil(ModalRoute.withName('/'));
+      }
+    } catch (e) {
+      print("Exception in _AddWebsiteState::_addSite, ${e.toString()}");
     }
   }
 
@@ -128,10 +132,14 @@ class _AddWebsiteState extends State<AddWebsite> {
 
   // Listen for url changed event
   void onUrlChanged(String url) async {
-    _websiteUrl = url;
-    // Find page title
-    _websiteTitle =
-        await flutterWebviewPlugin.evalJavascript("window.document.title");
-    _websiteTitle = _websiteTitle.replaceAll('"', '');
+    try {
+      _websiteUrl = url;
+      // Find page title
+      _websiteTitle =
+          await flutterWebviewPlugin.evalJavascript("window.document.title");
+      _websiteTitle = _websiteTitle.replaceAll('"', '');
+    } catch (e) {
+      print("Exception in _AddWebsiteState::onUrlChanged, ${e.toString()}");
+    }
   }
 }

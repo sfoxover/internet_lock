@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Internet Lock',
       theme: ThemeData(
         primarySwatch: Colors.purple,
       ),
@@ -37,6 +37,10 @@ class _MainPageState extends State<MainPage> {
   // Is admin logged in
   bool _adminLoggedIn = false;
 
+  _MainPageState() {
+    WebsitesBloc.instance.getWebsites();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,49 +65,55 @@ class _MainPageState extends State<MainPage> {
 
   // Display AppBar buttons dependent on admin logged in
   _getAppBarButtons() {
-    List<Widget> results = [];
-    if (_adminLoggedIn) {
-      // Add new website button
-      results.add(RaisedButton.icon(
-          icon: const Icon(Icons.library_add, size: 18.0, color: Colors.white),
-          color: Theme.of(context).primaryColor,
-          label: Text('Add website',
-              style: TextStyle(color: Colors.white, fontSize: 16.0)),
-          onPressed: _addWebsiteClick));
+    try {
+      List<Widget> results = [];
+      if (_adminLoggedIn) {
+        // Add new website button
+        results.add(RaisedButton.icon(
+            icon:
+                const Icon(Icons.library_add, size: 18.0, color: Colors.white),
+            color: Theme.of(context).primaryColor,
+            label: Text('Add website',
+                style: TextStyle(color: Colors.white, fontSize: 16.0)),
+            onPressed: _addWebsiteClick));
 
-      // Edit website button
-      results.add(RaisedButton.icon(
-          icon: const Icon(Icons.edit, size: 18.0, color: Colors.white),
-          color: Theme.of(context).primaryColor,
-          label: Text('Edit',
-              style: TextStyle(color: Colors.white, fontSize: 16.0)),
-          onPressed: _editWebsiteClick));
+        // Edit website button
+        results.add(RaisedButton.icon(
+            icon: const Icon(Icons.edit, size: 18.0, color: Colors.white),
+            color: Theme.of(context).primaryColor,
+            label: Text('Edit',
+                style: TextStyle(color: Colors.white, fontSize: 16.0)),
+            onPressed: _editWebsiteClick));
 
-      // Delete website button
-      results.add(RaisedButton.icon(
-          icon: const Icon(Icons.delete, size: 18.0, color: Colors.white),
-          color: Theme.of(context).primaryColor,
-          label: Text('Delete',
-              style: TextStyle(color: Colors.white, fontSize: 16.0)),
-          onPressed: _deleteWebsiteClick));
+        // Delete website button
+        results.add(RaisedButton.icon(
+            icon: const Icon(Icons.delete, size: 18.0, color: Colors.white),
+            color: Theme.of(context).primaryColor,
+            label: Text('Delete',
+                style: TextStyle(color: Colors.white, fontSize: 16.0)),
+            onPressed: _deleteWebsiteClick));
 
-      // Parent logout button
-      results.add(RaisedButton.icon(
-          icon: const Icon(Icons.lock_open, size: 18.0, color: Colors.white),
-          color: Theme.of(context).primaryColor,
-          label: Text('Lock',
-              style: TextStyle(color: Colors.white, fontSize: 16.0)),
-          onPressed: _parentLogOffClick));
-    } else {
-      // Parent logon button
-      results.add(RaisedButton.icon(
-          icon: const Icon(Icons.lock, size: 18.0, color: Colors.white),
-          color: Theme.of(context).primaryColor,
-          label: Text('Unlock',
-              style: TextStyle(color: Colors.white, fontSize: 16.0)),
-          onPressed: _parentLogonClick));
+        // Parent logout button
+        results.add(RaisedButton.icon(
+            icon: const Icon(Icons.lock_open, size: 18.0, color: Colors.white),
+            color: Theme.of(context).primaryColor,
+            label: Text('Lock',
+                style: TextStyle(color: Colors.white, fontSize: 16.0)),
+            onPressed: _parentLogOffClick));
+      } else {
+        // Parent logon button
+        results.add(RaisedButton.icon(
+            icon: const Icon(Icons.lock, size: 18.0, color: Colors.white),
+            color: Theme.of(context).primaryColor,
+            label: Text('Unlock',
+                style: TextStyle(color: Colors.white, fontSize: 16.0)),
+            onPressed: _parentLogonClick));
+      }
+      return results;
+    } catch (e) {
+      print("Exception in main::_getAppBarButtons, ${e.toString()}");
+      return null;
     }
-    return results;
   }
 
   // Handle admin logon click
@@ -133,19 +143,24 @@ class _MainPageState extends State<MainPage> {
 
   // Load all websites
   _getWebsitesView(AsyncSnapshot<List<Website>> snapshot) {
-    return ListView.builder(
-      itemCount: snapshot.data.length,
-      itemBuilder: (BuildContext context, int index) {
-        Website item = snapshot.data[index];
-        return ListTile(
-          title: Text(item.title),
-          leading: Image.network(item.favIconUrl),
-          onTap: () {
-            _loadWebsite(item);
-          },
-        );
-      },
-    );
+    try {
+      return ListView.builder(
+        itemCount: snapshot.data.length,
+        itemBuilder: (BuildContext context, int index) {
+          Website item = snapshot.data[index];
+          return ListTile(
+            title: Text(item.title),
+            leading: Image.network(item.favIconUrl),
+            onTap: () {
+              _loadWebsite(item);
+            },
+          );
+        },
+      );
+    } catch (e) {
+      print("Exception in main::_getWebsitesView, ${e.toString()}");
+      return null;
+    }
   }
 
   // Load selected web site
@@ -160,24 +175,29 @@ class _MainPageState extends State<MainPage> {
 
   // Return placehold website
   _getEmptyWebsiteList() {
-    var sites = new List<Website>();
-    sites.add(new Website(
-        id: -1,
-        title: "Click unlock to add a new website.",
-        favIconUrl: Defines.SEARCH_FAV_ICON_URL));
-
-    return ListView.builder(
-      itemCount: sites.length,
-      itemBuilder: (BuildContext context, int index) {
-        Website item = sites[index];
-        return ListTile(
-          title: Text(item.title),
-          leading: Image.network(item.favIconUrl),
-          onTap: () {
-            _parentLogonClick();
-          },
-        );
-      },
-    );
+    try {
+      print("Loading empty website message for list.");
+      var sites = new List<Website>();
+      sites.add(new Website(
+          id: -1,
+          title: "Click unlock to add a new website.",
+          favIconUrl: Defines.SEARCH_FAV_ICON_URL));
+      return ListView.builder(
+        itemCount: sites.length,
+        itemBuilder: (BuildContext context, int index) {
+          Website item = sites[index];
+          return ListTile(
+            title: Text(item.title),
+            leading: Image.network(item.favIconUrl),
+            onTap: () {
+              _parentLogonClick();
+            },
+          );
+        },
+      );
+    } catch (e) {
+      print("Exception in main::_getEmptyWebsiteList, ${e.toString()}");
+      return null;
+    }
   }
 }

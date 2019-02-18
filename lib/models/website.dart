@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:internet_lock/helpers/helpers.dart';
+
 Website websiteFromJson(String str) {
   final jsonData = json.decode(str);
   return Website.fromJson(jsonData);
@@ -28,8 +30,10 @@ class Website {
     this.favIconUrl,
     this.allowedUrls,
   }) {
-    if (id == null) id = 0;
-    if (startUrl != null && startUrl.isNotEmpty && favIconUrl.isEmpty) {
+    if (id == null) {
+      id = 0;
+    }
+    if (!Helpers.isNullOrEmpty(startUrl) && Helpers.isNullOrEmpty(favIconUrl)) {
       var uri = Uri.parse(startUrl);
       uri = uri.replace(path: "favicon.ico", query: "");
       favIconUrl = uri.toString();
