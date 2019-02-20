@@ -1,9 +1,8 @@
-
 import 'package:flutter/material.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:internet_lock/models/website.dart';
 
 class LoadWebsite extends StatefulWidget {
-  
   final Website website;
 
   LoadWebsite({Key key, this.website}) : super(key: key);
@@ -14,6 +13,50 @@ class LoadWebsite extends StatefulWidget {
 class _LoadWebsiteState extends State<LoadWebsite> {
   @override
   Widget build(BuildContext context) {
-   return Text("Website");
+    return WebviewScaffold(
+      url: widget.website.startUrl,
+      initialChild: Container(
+        child: const Center(
+          child: Text('Loading.....'),
+        ),
+      ),
+      appBar: new AppBar(
+        title: new Text("Search and add website"),
+        actions: _getAppBarButtons(),
+      ),
+    );
   }
+
+  // Display AppBar buttons for browser navigation
+  _getAppBarButtons() {
+    List<Widget> results = [];
+    // Home page button
+    results.add(RaisedButton.icon(
+        icon: const Icon(Icons.home, size: 18.0, color: Colors.white),
+        color: Theme.of(context).primaryColor,
+        label:
+            Text('Home', style: TextStyle(color: Colors.white, fontSize: 16.0)),
+        onPressed: _loadHomePage));
+    // Back button
+    results.add(RaisedButton.icon(
+        icon: const Icon(Icons.arrow_back, size: 18.0, color: Colors.white),
+        color: Theme.of(context).primaryColor,
+        label:
+            Text('Back', style: TextStyle(color: Colors.white, fontSize: 16.0)),
+        onPressed: _goBack()));
+    // Forward button
+    results.add(RaisedButton.icon(
+        icon: const Icon(Icons.arrow_forward, size: 18.0, color: Colors.white),
+        color: Theme.of(context).primaryColor,
+        label: Text('Forward',
+            style: TextStyle(color: Colors.white, fontSize: 16.0)),
+        onPressed: _goForward()));
+    return results;
+  }
+
+  void _loadHomePage() {}
+
+  _goBack() {}
+
+  _goForward() {}
 }
