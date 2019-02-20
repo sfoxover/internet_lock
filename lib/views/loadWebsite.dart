@@ -47,14 +47,14 @@ class _LoadWebsiteState extends State<LoadWebsite> {
         color: Theme.of(context).primaryColor,
         label:
             Text('Back', style: TextStyle(color: Colors.white, fontSize: 16.0)),
-        onPressed: _goBack()));
+        onPressed: _goBack));
     // Forward button
     results.add(RaisedButton.icon(
         icon: const Icon(Icons.arrow_forward, size: 18.0, color: Colors.white),
         color: Theme.of(context).primaryColor,
         label: Text('Forward',
             style: TextStyle(color: Colors.white, fontSize: 16.0)),
-        onPressed: _goForward()));
+        onPressed: _goForward));
     return results;
   }
 
