@@ -11,7 +11,6 @@ class LoadWebsite extends StatefulWidget {
 }
 
 class _LoadWebsiteState extends State<LoadWebsite> {
-
   // Webview single instance
   final _browser = new FlutterWebviewPlugin();
 
@@ -25,7 +24,7 @@ class _LoadWebsiteState extends State<LoadWebsite> {
         ),
       ),
       appBar: new AppBar(
-        title: new Text("Search and add website"),
+        title: new Text(widget.website.title),
         actions: _getAppBarButtons(),
       ),
     );
@@ -49,11 +48,15 @@ class _LoadWebsiteState extends State<LoadWebsite> {
             Text('Back', style: TextStyle(color: Colors.white, fontSize: 16.0)),
         onPressed: _goBack));
     // Forward button
-    results.add(RaisedButton.icon(
-        icon: const Icon(Icons.arrow_forward, size: 18.0, color: Colors.white),
-        color: Theme.of(context).primaryColor,
-        label: Text('Forward',
-            style: TextStyle(color: Colors.white, fontSize: 16.0)),
+    results.add(RawMaterialButton(
+        fillColor: Theme.of(context).primaryColor,
+        textStyle: TextStyle(color: Colors.white, fontSize: 16.0),
+        child: Row(
+          children: <Widget>[
+            Text('Forward'),
+            Icon(Icons.arrow_forward, size: 18.0, color: Colors.white)
+          ],
+        ),
         onPressed: _goForward));
     return results;
   }
