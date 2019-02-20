@@ -11,6 +11,10 @@ class LoadWebsite extends StatefulWidget {
 }
 
 class _LoadWebsiteState extends State<LoadWebsite> {
+
+  // Webview single instance
+  final _browser = new FlutterWebviewPlugin();
+
   @override
   Widget build(BuildContext context) {
     return WebviewScaffold(
@@ -54,9 +58,18 @@ class _LoadWebsiteState extends State<LoadWebsite> {
     return results;
   }
 
-  void _loadHomePage() {}
+  // Reload home page
+  void _loadHomePage() {
+    _browser.reloadUrl(widget.website.startUrl);
+  }
 
-  _goBack() {}
+  // Go Back
+  _goBack() {
+    _browser.goBack();
+  }
 
-  _goForward() {}
+  // Go forward
+  _goForward() {
+    _browser.goForward();
+  }
 }

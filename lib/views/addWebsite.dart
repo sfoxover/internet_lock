@@ -17,13 +17,19 @@ class _AddWebsiteState extends State<AddWebsite> {
   String _websiteUrl;
   // Website title
   String _websiteTitle;
-  // Webview instance
-  final flutterWebviewPlugin = new FlutterWebviewPlugin();
+  // Webview single instance
+  final _browser = new FlutterWebviewPlugin();
 
   // Constructor
   _AddWebsiteState() {
     // Listen for url changed event
-    flutterWebviewPlugin.onUrlChanged.listen(onUrlChanged);
+    _browser.onUrlChanged.listen(onUrlChanged);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _browser.dispose();
   }
 
   @override
@@ -71,28 +77,34 @@ class _AddWebsiteState extends State<AddWebsite> {
 
   // Verify user input is valid
   bool _validateUserInput() {
-    var bOK = false;
+    var bOK = false;    
     // Check for empty site
     if (Helpers.isNullOrEmpty(_websiteUrl)) {
+      _browser.hide();
       Helpers.displayAlert(
         context,
         "Error",
         "Please wait until your selected site is loaded, then click this button.",
       );
+      _browser.show();
     } else if (Helpers.isSearchUriMatch(_websiteUrl)) {
       // Do not save url if its a search result
+      _browser.hide();
       Helpers.displayAlert(
         context,
         "Error",
         "Please click the search result link you want and select the site after its loaded.",
       );
+      _browser.show();
     } else if (Helpers.isNullOrEmpty(_websiteTitle)) {
       // Do not save if no title was loaded
+      _browser.hide();
       Helpers.displayAlert(
         context,
         "Error",
         "Unable to load title from the selected website. Please type in the title of the website manually.",
       );
+      _browser.show();
       _showAdvancedPage();
     } else {
       bOK = true;
@@ -137,7 +149,7 @@ class _AddWebsiteState extends State<AddWebsite> {
       _websiteUrl = url;
       // Find page title
       _websiteTitle =
-          await flutterWebviewPlugin.evalJavascript("window.document.title");
+          await _browser.evalJavascript("window.document.title");
       _websiteTitle = _websiteTitle.replaceAll('"', '');
     } catch (e) {
       print("Exception in _AddWebsiteState::onUrlChanged, ${e.toString()}");
