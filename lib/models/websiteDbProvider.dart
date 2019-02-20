@@ -48,7 +48,7 @@ class WebsiteDBProvider {
     }
   }
 
-  updateClient(Website site) async {
+  updateWebsite(Website site) async {
     final db = await database;
     var res = await db.update("websites", site.toJson(),
         where: "id = ?", whereArgs: [site.id]);
@@ -64,7 +64,7 @@ class WebsiteDBProvider {
   Future<List<Website>> getAllWebsites() async {
     try {
       final db = await database;
-      var res = await db.query("websites");
+      var res = await db.query("websites", orderBy: "title");
       List<Website> list =
           res.isNotEmpty ? res.map((c) => Website.fromJson(c)).toList() : [];
       return list;

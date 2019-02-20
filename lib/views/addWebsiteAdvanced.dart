@@ -5,29 +5,27 @@ import 'package:internet_lock/models/websitesBloc.dart';
 import 'package:internet_lock/views/addWebsite.dart';
 
 class AddWebsiteAdvanced extends StatefulWidget {
-  // Website url
-  final String websiteUrl;
-  // Website title
-  final String websiteTitle;
+  // Website
+  final Website website;
 
-  AddWebsiteAdvanced({Key key, this.websiteUrl, this.websiteTitle})
-      : super(key: key);
+  AddWebsiteAdvanced({Key key, this.website}) : super(key: key);
 
   @override
-  _AddWebsiteAdvancedState createState() =>
-      _AddWebsiteAdvancedState(websiteUrl, websiteTitle);
+  _AddWebsiteAdvancedState createState() => _AddWebsiteAdvancedState(website);
 }
 
 class _AddWebsiteAdvancedState extends State<AddWebsiteAdvanced> {
   // Global key to uniquely identify the Form
   final _formKey = GlobalKey<FormState>();
-  // Website title
-  String _websiteTitle;
-  // Website url
-  String _websiteUrl;
+  // Website
+  Website _website;
 
   // Set any web site values loaded from search page
-  _AddWebsiteAdvancedState(this._websiteUrl, this._websiteTitle);
+  _AddWebsiteAdvancedState(this._website) {
+    if (_website == null) {
+      _website = new Website();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,11 +44,11 @@ class _AddWebsiteAdvancedState extends State<AddWebsiteAdvanced> {
                 leading: const Icon(Icons.title),
                 title: TextFormField(
                   autovalidate: false,
-                  initialValue: _websiteTitle,
+                  initialValue: _website.title,
                   decoration: new InputDecoration(
                     hintText: "Website title",
                   ),
-                  onSaved: (value) => this._websiteTitle = value,
+                  onSaved: (value) => this._website.title = value,
                   validator: (value) {
                     if (value.isEmpty) {
                       return 'Please enter a title for this website.';
@@ -64,11 +62,11 @@ class _AddWebsiteAdvancedState extends State<AddWebsiteAdvanced> {
                 leading: const Icon(Icons.home),
                 title: TextFormField(
                   autovalidate: false,
-                  initialValue: _websiteUrl,
+                  initialValue: _website.startUrl,
                   decoration: new InputDecoration(
                     hintText: "Website url",
                   ),
-                  onSaved: (value) => this._websiteUrl = value,
+                  onSaved: (value) => this._website.startUrl = value,
                   validator: (value) {
                     if (value.isEmpty) {
                       return 'Please enter the url for this website.';
@@ -93,7 +91,7 @@ class _AddWebsiteAdvancedState extends State<AddWebsiteAdvanced> {
         color: Theme.of(context).primaryColor,
         label: Text('Save site',
             style: TextStyle(color: Colors.white, fontSize: 16.0)),
-        onPressed: _addSite));
+        onPressed: _saveSite));
 
     // Cancel button
     results.add(RaisedButton.icon(
@@ -114,14 +112,17 @@ class _AddWebsiteAdvancedState extends State<AddWebsiteAdvanced> {
   }
 
   // Save website details
-  void _addSite() {
+  void _saveSite() async {
     if (this._formKey.currentState.validate()) {
       setState(() {
         this._formKey.currentState.save();
       });
       // Save to database
-      Website site = new Website(title: _websiteTitle, startUrl: _websiteUrl);
-      WebsitesBloc.instance.add(site);
+      if (_website.id > 0) {
+        await WebsitesBloc.instance.edit(_website);
+      } else {
+        await WebsitesBloc.instance.add(_website);
+      }
       Navigator.of(context).popUntil(ModalRoute.withName('/'));
     }
   }

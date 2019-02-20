@@ -26,13 +26,18 @@ class WebsitesBloc {
     getWebsites();
   }
 
-  delete(int id) {
-    _dbProvider.deleteWebsite(id);
-    getWebsites();
+  add(Website item) async {
+    await _dbProvider.addWebsite(item);
+    await getWebsites();
   }
 
-  add(Website item) {
-    _dbProvider.addWebsite(item);
-    getWebsites();
+  edit(Website item) async {
+    await _dbProvider.updateWebsite(item);
+    await getWebsites();
+  }
+
+  delete(int id) async {
+    await _dbProvider.deleteWebsite(id);
+    await getWebsites();
   }
 }

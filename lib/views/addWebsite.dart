@@ -121,7 +121,8 @@ class _AddWebsiteState extends State<AddWebsite> {
       context,
       MaterialPageRoute(
           builder: (context) => AddWebsiteAdvanced(
-              websiteUrl: _websiteUrl, websiteTitle: _websiteTitle)),
+              website:
+                  new Website(startUrl: _websiteUrl, title: _websiteTitle))),
     );
   }
 

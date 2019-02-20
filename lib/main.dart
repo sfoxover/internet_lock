@@ -3,6 +3,7 @@ import 'package:internet_lock/helpers/defines.dart';
 import 'package:internet_lock/models/website.dart';
 import 'package:internet_lock/models/websitesBloc.dart';
 import 'package:internet_lock/views/addWebsite.dart';
+import 'package:internet_lock/views/addWebsiteAdvanced.dart';
 import 'package:internet_lock/views/loadWebsite.dart';
 
 void main() => runApp(MyApp());
@@ -137,7 +138,20 @@ class _MainPageState extends State<MainPage> {
   }
 
   // Edit website clicked
-  void _editWebsiteClick() {}
+  void _editWebsiteClick() {
+    try {
+      if (_selectedWebsite != null) {
+        Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddWebsiteAdvanced(website: _selectedWebsite),
+      ),
+    );
+      }
+    } catch (e) {
+      print("Exception in main::_editWebsiteClick, ${e.toString()}");
+    }
+  }
 
   // Delete website clicked
   void _deleteWebsiteClick() {
@@ -147,10 +161,10 @@ class _MainPageState extends State<MainPage> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                  title: Text("Are you sure"),
+                  title: Text("Are you sure you want to delete website,"),
                   content: SingleChildScrollView(
                     child: Text(
-                        'You want to delete website "${_selectedWebsite.title}"'),
+                        '"${_selectedWebsite.title}"'),
                   ),
                   actions: <Widget>[
                     new FlatButton(
