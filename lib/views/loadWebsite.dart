@@ -48,15 +48,18 @@ class _LoadWebsiteState extends State<LoadWebsite> {
             Text('Back', style: TextStyle(color: Colors.white, fontSize: 16.0)),
         onPressed: _goBack));
     // Forward button
-    results.add(RawMaterialButton(
-        fillColor: Theme.of(context).primaryColor,
-        textStyle: TextStyle(color: Colors.white, fontSize: 16.0),
+    results.add(RaisedButton(
         child: Row(
           children: <Widget>[
-            Text('Forward'),
-            Icon(Icons.arrow_forward, size: 18.0, color: Colors.white)
+            Text('Forward',
+                style: TextStyle(color: Colors.white, fontSize: 16.0)),
+            Padding(
+                padding: const EdgeInsets.only(left: 8, right: 0),
+                child:
+                    Icon(Icons.arrow_forward, size: 18.0, color: Colors.white))
           ],
         ),
+        color: Theme.of(context).primaryColor,
         onPressed: _goForward));
     return results;
   }
