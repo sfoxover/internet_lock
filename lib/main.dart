@@ -5,6 +5,7 @@ import 'package:internet_lock/models/websitesBloc.dart';
 import 'package:internet_lock/views/addWebsite.dart';
 import 'package:internet_lock/views/addWebsiteAdvanced.dart';
 import 'package:internet_lock/views/loadWebsite.dart';
+import 'package:internet_lock/views/userLogon.dart';
 
 void main() => runApp(MyApp());
 
@@ -42,7 +43,7 @@ class _MainPageState extends State<MainPage> {
   // Selected list item
   int _selectedIndex = 0;
   // Selected website item
-  Website _selectedWebsite = null;
+  Website _selectedWebsite;
 
   @override
   Widget build(BuildContext context) {
@@ -97,39 +98,32 @@ class _MainPageState extends State<MainPage> {
 
         // Parent logout button
         results.add(RaisedButton.icon(
-            icon: const Icon(Icons.lock_open, size: 18.0, color: Colors.white),
+            icon: const Icon(Icons.settings, size: 18.0, color: Colors.white),
             color: Theme.of(context).primaryColor,
-            label: Text('Lock',
+            label: Text('Parent logout',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
             onPressed: _parentLogOffClick));
       } else {
         // Parent logon button
         results.add(RaisedButton.icon(
-            icon: const Icon(Icons.lock, size: 18.0, color: Colors.white),
+            icon: const Icon(Icons.settings, size: 18.0, color: Colors.white),
             color: Theme.of(context).primaryColor,
-            label: Text('Unlock',
+            label: Text('Parent logon',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
             onPressed: _parentLogonClick));
+        // Lock apps
+        results.add(RaisedButton.icon(
+            icon: const Icon(Icons.lock, size: 18.0, color: Colors.white),
+            color: Theme.of(context).primaryColor,
+            label: Text('Lock apps',
+                style: TextStyle(color: Colors.white, fontSize: 16.0)),
+            onPressed: _lockAppsClick));
       }
       return results;
     } catch (e) {
       print("Exception in main::_getAppBarButtons, ${e.toString()}");
       return null;
     }
-  }
-
-  // Handle admin logon click
-  void _parentLogonClick() {
-    setState(() {
-      _adminLoggedIn = true;
-    });
-  }
-
-  // Handle admin log off click
-  void _parentLogOffClick() {
-    setState(() {
-      _adminLoggedIn = false;
-    });
   }
 
   // Add website clicked
@@ -142,11 +136,11 @@ class _MainPageState extends State<MainPage> {
     try {
       if (_selectedWebsite != null) {
         Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AddWebsiteAdvanced(website: _selectedWebsite),
-      ),
-    );
+          context,
+          MaterialPageRoute(
+            builder: (context) => AddWebsiteAdvanced(website: _selectedWebsite),
+          ),
+        );
       }
     } catch (e) {
       print("Exception in main::_editWebsiteClick, ${e.toString()}");
@@ -161,10 +155,9 @@ class _MainPageState extends State<MainPage> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                  title: Text("Are you sure you want to delete website,"),
+                  title: Text("Are you sure you want to delete this website?"),
                   content: SingleChildScrollView(
-                    child: Text(
-                        '"${_selectedWebsite.title}"'),
+                    child: Text('${_selectedWebsite.title}'),
                   ),
                   actions: <Widget>[
                     new FlatButton(
@@ -272,4 +265,27 @@ class _MainPageState extends State<MainPage> {
       return null;
     }
   }
+
+  // Handle parent logon click
+  void _parentLogonClick() {
+    // Load parent logon page
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => UserLogon(),
+        ));
+    setState(() {
+      _adminLoggedIn = true;
+    });
+  }
+
+  // Handle parent log off click
+  void _parentLogOffClick() {
+    setState(() {
+      _adminLoggedIn = false;
+    });
+  }
+
+  // Lock device to this app
+  void _lockAppsClick() {}
 }

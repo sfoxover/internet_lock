@@ -54,7 +54,7 @@ class _LoadWebsiteState extends State<LoadWebsite> {
             Text('Forward',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
             Padding(
-                padding: const EdgeInsets.only(left: 8, right: 0),
+                padding: const EdgeInsets.only(left: 8),
                 child:
                     Icon(Icons.arrow_forward, size: 18.0, color: Colors.white))
           ],
