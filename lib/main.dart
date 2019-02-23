@@ -43,6 +43,8 @@ class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
   // Selected website item
   Website _selectedWebsite;
+  // Device name
+  String _deviceName = "tablet";
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +116,7 @@ class _MainPageState extends State<MainPage> {
         results.add(RaisedButton.icon(
             icon: const Icon(Icons.lock, size: 18.0, color: Colors.white),
             color: Theme.of(context).primaryColor,
-            label: Text('Lock apps',
+            label: Text('Lock $_deviceName',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
             onPressed: _lockAppsClick));
       }

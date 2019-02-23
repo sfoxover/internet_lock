@@ -46,7 +46,7 @@ class _UserLogonState extends State<UserLogon> {
         appBar: AppBar(
           // Here we take the value from the MyHomePage object that was created by
           // the App.build method, and use it to set our appbar title.
-          title: Text("Parent logon"),
+          title: Text("Parent logon settings"),
           actions: _getAppBarButtons(),
         ),
         body: StreamBuilder<List<User>>(
@@ -66,6 +66,16 @@ class _UserLogonState extends State<UserLogon> {
     try {
       List<Widget> results = [];
       if (LockManager.instance.adminLoggedIn) {
+        // Edit websites
+        results.add(RaisedButton.icon(
+            icon: const Icon(Icons.web_asset, size: 18.0, color: Colors.white),
+            color: Theme.of(context).primaryColor,
+            label: Text('Edit websites',
+                style: TextStyle(color: Colors.white, fontSize: 16.0)),
+            onPressed: () {
+              Navigator.of(context).popUntil(ModalRoute.withName('/'));
+            }));
+
         // Add new user button
         results.add(RaisedButton.icon(
             icon:
@@ -74,6 +84,7 @@ class _UserLogonState extends State<UserLogon> {
             label: Text('Add parent',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
             onPressed: _addUserClick));
+
         // Edit user button
         results.add(RaisedButton.icon(
             icon: const Icon(Icons.edit, size: 18.0, color: Colors.white),
@@ -81,6 +92,7 @@ class _UserLogonState extends State<UserLogon> {
             label: Text('Edit',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
             onPressed: _editUserClick));
+
         // Delete user button
         results.add(RaisedButton.icon(
             icon: const Icon(Icons.delete, size: 18.0, color: Colors.white),
@@ -249,6 +261,7 @@ class _UserLogonState extends State<UserLogon> {
   // Show user logon dialog
   void _userLogon(User user) {
     final password = TextEditingController();
+    String userMsg = "pin/password";
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -257,7 +270,7 @@ class _UserLogonState extends State<UserLogon> {
               content: SingleChildScrollView(
                   child: new TextField(
                 controller: password,
-                decoration: new InputDecoration(labelText: 'pin/password'),
+                decoration: new InputDecoration(labelText: "$userMsg"),
                 obscureText: true,
               )),
               actions: <Widget>[
@@ -268,8 +281,12 @@ class _UserLogonState extends State<UserLogon> {
                       setState(() {
                         LockManager.instance.adminLoggedIn = true;
                       });
+                      Navigator.of(context).pop();
+                    } else {
+                      setState(() {
+                        userMsg = "password incorrect";
+                      });
                     }
-                    Navigator.of(context).pop();
                   },
                 ),
                 new FlatButton(
@@ -281,10 +298,11 @@ class _UserLogonState extends State<UserLogon> {
         });
   }
 
-  // Lock out user
+  // Log out user
   void _userLogout(User user) {
     setState(() {
       LockManager.instance.adminLoggedIn = false;
     });
+    Navigator.of(context).popUntil(ModalRoute.withName('/'));
   }
 }
