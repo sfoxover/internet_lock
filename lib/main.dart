@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:internet_lock/helpers/defines.dart';
+import 'package:internet_lock/helpers/lockManager.dart';
 import 'package:internet_lock/models/website.dart';
 import 'package:internet_lock/models/websitesBloc.dart';
 import 'package:internet_lock/views/addWebsite.dart';
@@ -38,8 +39,6 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  // Is admin logged in
-  bool _adminLoggedIn = false;
   // Selected list item
   int _selectedIndex = 0;
   // Selected website item
@@ -70,7 +69,7 @@ class _MainPageState extends State<MainPage> {
   _getAppBarButtons() {
     try {
       List<Widget> results = [];
-      if (_adminLoggedIn) {
+      if (LockManager.instance.adminLoggedIn) {
         // Add new website button
         results.add(RaisedButton.icon(
             icon:
@@ -100,15 +99,15 @@ class _MainPageState extends State<MainPage> {
         results.add(RaisedButton.icon(
             icon: const Icon(Icons.settings, size: 18.0, color: Colors.white),
             color: Theme.of(context).primaryColor,
-            label: Text('Parent logout',
+            label: Text('Parent settings',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            onPressed: _parentLogOffClick));
+            onPressed: _parentLogonClick));
       } else {
         // Parent logon button
         results.add(RaisedButton.icon(
             icon: const Icon(Icons.settings, size: 18.0, color: Colors.white),
             color: Theme.of(context).primaryColor,
-            label: Text('Parent logon',
+            label: Text('Parent settings',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
             onPressed: _parentLogonClick));
         // Lock apps
@@ -197,7 +196,7 @@ class _MainPageState extends State<MainPage> {
                   : Theme.of(context).scaffoldBackgroundColor,
               child: ListTile(
                 title: Text(item.title),
-                leading: Image.network(item.favIconUrl),
+                leading: Image.network(item.favIconUrl, height: 35),
                 selected: _selectedIndex == index,
                 // Load website button
                 trailing: new SizedBox(
@@ -274,16 +273,6 @@ class _MainPageState extends State<MainPage> {
         MaterialPageRoute(
           builder: (context) => UserLogon(),
         ));
-    setState(() {
-      _adminLoggedIn = true;
-    });
-  }
-
-  // Handle parent log off click
-  void _parentLogOffClick() {
-    setState(() {
-      _adminLoggedIn = false;
-    });
   }
 
   // Lock device to this app

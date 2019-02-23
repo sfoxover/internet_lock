@@ -45,4 +45,10 @@ class User {
         "pin": pin,
         "created_date": createdDate,
       };
+
+  // Validate user logon
+  bool passwordMatches(String value) {
+    bool match = value != null && value.isNotEmpty && value == pin;
+    return match;
+  }
 }

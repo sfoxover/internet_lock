@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internet_lock/helpers/lockManager.dart';
 import 'package:internet_lock/models/user.dart';
 import 'package:internet_lock/models/userBloc.dart';
 import 'package:internet_lock/models/userDbProvider.dart';
@@ -13,8 +14,6 @@ class UserLogon extends StatefulWidget {
 }
 
 class _UserLogonState extends State<UserLogon> {
-  // Is parent logged in
-  bool _adminLoggedIn = false;
   // Selected list item
   int _selectedIndex = 0;
   // Selected website item
@@ -40,6 +39,7 @@ class _UserLogonState extends State<UserLogon> {
     }
   }
 
+  // Build UI
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,7 +65,7 @@ class _UserLogonState extends State<UserLogon> {
   _getAppBarButtons() {
     try {
       List<Widget> results = [];
-      if (_adminLoggedIn) {
+      if (LockManager.instance.adminLoggedIn) {
         // Add new user button
         results.add(RaisedButton.icon(
             icon:
@@ -96,7 +96,7 @@ class _UserLogonState extends State<UserLogon> {
     }
   }
 
-  // Load all users
+  // Load all users list view
   Widget _getUserView(AsyncSnapshot<List<User>> snapshot) {
     try {
       if (_selectedUser == null && snapshot.data.length > 0) {
@@ -116,18 +116,8 @@ class _UserLogonState extends State<UserLogon> {
                 leading: Icon(Icons.supervised_user_circle),
                 selected: _selectedIndex == index,
                 // Logon user button
-                trailing: new SizedBox(
-                    height: 35,
-                    child: RaisedButton.icon(
-                        icon: const Icon(Icons.play_arrow,
-                            size: 35.0, color: Colors.white),
-                        color: Theme.of(context).primaryColor,
-                        label: Text('Logon',
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 16.0)),
-                        onPressed: () {
-                          _userLogon(user);
-                        })),
+                trailing: _getUserLogonButton(user),
+                // Select list view item
                 onTap: () {
                   setState(() {
                     _selectedIndex = index;
@@ -140,6 +130,33 @@ class _UserLogonState extends State<UserLogon> {
     } catch (e) {
       print("Exception in UserLogon::_getUserView, ${e.toString()}");
       return null;
+    }
+  }
+
+  // render correct logon button
+  _getUserLogonButton(User user) {
+    if (LockManager.instance.adminLoggedIn) {
+      return new SizedBox(
+          height: 35,
+          child: RaisedButton.icon(
+              icon: const Icon(Icons.lock_open, size: 30, color: Colors.white),
+              color: Theme.of(context).primaryColor,
+              label: Text('Lock',
+                  style: TextStyle(color: Colors.white, fontSize: 16.0)),
+              onPressed: () {
+                _userLogout(user);
+              }));
+    } else {
+      return new SizedBox(
+          height: 35,
+          child: RaisedButton.icon(
+              icon: const Icon(Icons.lock, size: 30, color: Colors.white),
+              color: Theme.of(context).primaryColor,
+              label: Text('Unlock',
+                  style: TextStyle(color: Colors.white, fontSize: 16.0)),
+              onPressed: () {
+                _userLogon(user);
+              }));
     }
   }
 
@@ -229,5 +246,45 @@ class _UserLogonState extends State<UserLogon> {
     }
   }
 
-  void _userLogon(User user) {}
+  // Show user logon dialog
+  void _userLogon(User user) {
+    final password = TextEditingController();
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              title: Text("Please enter your pin or password"),
+              content: SingleChildScrollView(
+                  child: new TextField(
+                controller: password,
+                decoration: new InputDecoration(labelText: 'pin/password'),
+                obscureText: true,
+              )),
+              actions: <Widget>[
+                new FlatButton(
+                  child: new Text("OK"),
+                  onPressed: () {
+                    if (user.passwordMatches(password.text)) {
+                      setState(() {
+                        LockManager.instance.adminLoggedIn = true;
+                      });
+                    }
+                    Navigator.of(context).pop();
+                  },
+                ),
+                new FlatButton(
+                    child: new Text("Cancel"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    })
+              ]);
+        });
+  }
+
+  // Lock out user
+  void _userLogout(User user) {
+    setState(() {
+      LockManager.instance.adminLoggedIn = false;
+    });
+  }
 }
