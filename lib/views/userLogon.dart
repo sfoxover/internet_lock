@@ -26,11 +26,14 @@ class _UserLogonState extends State<UserLogon> {
   }
 
   // If not user exists load new user page
-  void _checkForUserAccount() async {
+  Future _checkForUserAccount() async {
     try {
-       final db = new UserDBProvider();
-      if (await db.isEmpty()) {
+      final db = new UserDBProvider();
+      bool empty = await db.isEmpty();
+      if (empty) {
         _addUserClick();
+      } else {
+        UserBloc.instance.getUsers();
       }
     } catch (e) {
       print("Exception in UserLogon::_checkForUserAccount, ${e.toString()}");
@@ -119,7 +122,7 @@ class _UserLogonState extends State<UserLogon> {
                         icon: const Icon(Icons.play_arrow,
                             size: 35.0, color: Colors.white),
                         color: Theme.of(context).primaryColor,
-                        label: Text('Load',
+                        label: Text('Logon',
                             style:
                                 TextStyle(color: Colors.white, fontSize: 16.0)),
                         onPressed: () {
