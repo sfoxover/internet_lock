@@ -18,6 +18,8 @@ class _UserLogonState extends State<UserLogon> {
   int _selectedIndex = 0;
   // Selected website item
   User _selectedUser;
+  // Page build context
+  BuildContext _mainContext;
 
   // Constructor
   _UserLogonState() {
@@ -53,6 +55,7 @@ class _UserLogonState extends State<UserLogon> {
             stream: UserBloc.instance.users,
             builder:
                 (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
+              _mainContext = context;
               if (snapshot.hasData) {
                 return _getUserView(snapshot);
               } else {
@@ -261,16 +264,15 @@ class _UserLogonState extends State<UserLogon> {
   // Show user logon dialog
   void _userLogon(User user) {
     final password = TextEditingController();
-    String userMsg = "pin/password";
     showDialog(
         context: context,
-        builder: (BuildContext context) {
+        builder: (BuildContext contextDlg) {
           return AlertDialog(
               title: Text("Please enter your pin or password"),
               content: SingleChildScrollView(
                   child: new TextField(
                 controller: password,
-                decoration: new InputDecoration(labelText: "$userMsg"),
+                decoration: new InputDecoration(labelText: "pin/password"),
                 obscureText: true,
               )),
               actions: <Widget>[
@@ -283,8 +285,14 @@ class _UserLogonState extends State<UserLogon> {
                       });
                       Navigator.of(context).pop();
                     } else {
-                      setState(() {
-                        userMsg = "password incorrect";
+                      final snackBar = SnackBar(
+                        content: Text('Your pin or password was not correct!', textAlign: TextAlign.center,),
+                        backgroundColor: Theme.of(context).primaryColor,
+                      );
+                      Scaffold.of(_mainContext).showSnackBar(snackBar);
+                      Future.delayed(const Duration(seconds: 5), () {
+                        final scaffold = Scaffold.of(_mainContext);
+                        scaffold.hideCurrentSnackBar();
                       });
                     }
                   },
