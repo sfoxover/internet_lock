@@ -1,5 +1,6 @@
 // Static helper methods
 import 'package:flutter/material.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:internet_lock/helpers/defines.dart';
 
 class Helpers {
@@ -14,19 +15,33 @@ class Helpers {
   }
 
   // Display alert message snackbar
-  static displayAlert(BuildContext context, String message) {
+  static displayAlert(GlobalKey viewKey, double appbarHeight, String message) {
     try {
+      GlobalKey _snack = new GlobalKey();
+      final _browser = new FlutterWebviewPlugin();
       final snackBar = SnackBar(
+        duration: Duration(seconds: 20),
         content: Text(
           message,
           textAlign: TextAlign.center,
+          key: _snack,
         ),
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Theme.of(viewKey.currentContext).primaryColor,
       );
-      Scaffold.of(context).showSnackBar(snackBar);
-      Future.delayed(const Duration(seconds: 5), () {
-        final scaffold = Scaffold.of(context);
+      Scaffold.of(viewKey.currentContext).showSnackBar(snackBar);
+      // Shrink browser height
+      double normalHeight = viewKey.currentContext.size.height;
+      _browser.resize(Rect.fromLTRB(
+          0,
+          appbarHeight,
+          viewKey.currentContext.size.width,
+          viewKey.currentContext.size.height - 50));
+      Future.delayed(const Duration(seconds: 20), () {
+        final scaffold = Scaffold.of(viewKey.currentContext);
         scaffold.hideCurrentSnackBar();
+        // Restore browser size
+        _browser.resize(Rect.fromLTRB(
+            0, appbarHeight, viewKey.currentContext.size.width, normalHeight));
       });
     } catch (e) {
       print("Exception in Helpers::displayAlert, ${e.toString()}");

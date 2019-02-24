@@ -19,9 +19,9 @@ class _AddWebsiteState extends State<AddWebsite> {
   String _websiteTitle;
   // Webview single instance
   final _browser = new FlutterWebviewPlugin();
-  // Page build context
-  BuildContext _mainContext;
-  bool _showingError = false;
+  // Widget identifiers
+  GlobalKey _appBarKey = GlobalKey();
+  GlobalKey _mainViewKey = GlobalKey();
 
   // Constructor
   _AddWebsiteState() {
@@ -37,23 +37,22 @@ class _AddWebsiteState extends State<AddWebsite> {
 
   @override
   Widget build(BuildContext context) {
-    _mainContext = context;
-    if (_showingError) {
-      return Scaffold(body: Text("Error"));
-    } else {
-      return WebviewScaffold(
-        url: Defines.SEARCH_URL,
-        initialChild: Container(
-          child: const Center(
-            child: Text('Loading.....'),
-          ),
-        ),
+    return Scaffold(
         appBar: new AppBar(
+          key: _appBarKey,
           title: new Text("Search and add website"),
           actions: _getAppBarButtons(),
         ),
-      );
-    }
+        body: Container(
+            key: _mainViewKey,
+            child: WebviewScaffold(
+              url: Defines.SEARCH_URL,
+              initialChild: Container(
+                child: const Center(
+                  child: Text('Loading.....'),
+                ),
+              ),
+            )));
   }
 
   // Display AppBar buttons dependent on admin logged in
@@ -88,40 +87,22 @@ class _AddWebsiteState extends State<AddWebsite> {
     var bOK = false;
     // Check for empty site
     if (Helpers.isNullOrEmpty(_websiteUrl)) {
-      setState(() {
-        _showingError = true;
-      });
       Helpers.displayAlert(
-        _mainContext,
+        _mainViewKey, _appBarKey.currentContext.size.height,
         "Error, please wait until your selected site is loaded, then click this button.",
       );
-      setState(() {
-        _showingError = false;
-      });
     } else if (Helpers.isSearchUriMatch(_websiteUrl)) {
       // Do not save url if its a search result
-      setState(() {
-        _showingError = true;
-      });
       Helpers.displayAlert(
-        _mainContext,
+        _mainViewKey,_appBarKey.currentContext.size.height,
         "Error, please click the search result link you want and select the site after its loaded.",
       );
-      setState(() {
-        _showingError = false;
-      });
     } else if (Helpers.isNullOrEmpty(_websiteTitle)) {
       // Do not save if no title was loaded
-      setState(() {
-        _showingError = true;
-      });
       Helpers.displayAlert(
-        _mainContext,
+        _mainViewKey,_appBarKey.currentContext.size.height,
         "Error, please to load title from the selected website. Please type in the title of the website manually.",
       );
-      setState(() {
-        _showingError = false;
-      });
       _showAdvancedPage();
     } else {
       bOK = true;
