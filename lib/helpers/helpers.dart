@@ -14,25 +14,23 @@ class Helpers {
   }
 
   // Display alert message snackbar
-  static displayAlert(BuildContext context, String title, String message) {
-    // flutter defined function
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-              title: Text(title),
-              content: SingleChildScrollView(
-                child: Text(message),
-              ),
-              actions: <Widget>[
-                new FlatButton(
-                  child: new Text("OK"),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ]);
-        });
+  static displayAlert(BuildContext context, String message) {
+    try {
+      final snackBar = SnackBar(
+        content: Text(
+          message,
+          textAlign: TextAlign.center,
+        ),
+        backgroundColor: Theme.of(context).primaryColor,
+      );
+      Scaffold.of(context).showSnackBar(snackBar);
+      Future.delayed(const Duration(seconds: 5), () {
+        final scaffold = Scaffold.of(context);
+        scaffold.hideCurrentSnackBar();
+      });
+    } catch (e) {
+      print("Exception in Helpers::displayAlert, ${e.toString()}");
+    }
   }
 
   // Test for empty string

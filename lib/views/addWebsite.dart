@@ -19,6 +19,9 @@ class _AddWebsiteState extends State<AddWebsite> {
   String _websiteTitle;
   // Webview single instance
   final _browser = new FlutterWebviewPlugin();
+  // Page build context
+  BuildContext _mainContext;
+  bool _showingError = false;
 
   // Constructor
   _AddWebsiteState() {
@@ -34,18 +37,23 @@ class _AddWebsiteState extends State<AddWebsite> {
 
   @override
   Widget build(BuildContext context) {
-    return WebviewScaffold(
-      url: Defines.SEARCH_URL,
-      initialChild: Container(
-        child: const Center(
-          child: Text('Loading.....'),
+    _mainContext = context;
+    if (_showingError) {
+      return Scaffold(body: Text("Error"));
+    } else {
+      return WebviewScaffold(
+        url: Defines.SEARCH_URL,
+        initialChild: Container(
+          child: const Center(
+            child: Text('Loading.....'),
+          ),
         ),
-      ),
-      appBar: new AppBar(
-        title: new Text("Search and add website"),
-        actions: _getAppBarButtons(),
-      ),
-    );
+        appBar: new AppBar(
+          title: new Text("Search and add website"),
+          actions: _getAppBarButtons(),
+        ),
+      );
+    }
   }
 
   // Display AppBar buttons dependent on admin logged in
@@ -77,34 +85,43 @@ class _AddWebsiteState extends State<AddWebsite> {
 
   // Verify user input is valid
   bool _validateUserInput() {
-    var bOK = false;    
+    var bOK = false;
     // Check for empty site
     if (Helpers.isNullOrEmpty(_websiteUrl)) {
-      _browser.hide();
+      setState(() {
+        _showingError = true;
+      });
       Helpers.displayAlert(
-        context,
-        "Error",
-        "Please wait until your selected site is loaded, then click this button.",
+        _mainContext,
+        "Error, please wait until your selected site is loaded, then click this button.",
       );
-      _browser.show();
+      setState(() {
+        _showingError = false;
+      });
     } else if (Helpers.isSearchUriMatch(_websiteUrl)) {
       // Do not save url if its a search result
-      _browser.hide();
+      setState(() {
+        _showingError = true;
+      });
       Helpers.displayAlert(
-        context,
-        "Error",
-        "Please click the search result link you want and select the site after its loaded.",
+        _mainContext,
+        "Error, please click the search result link you want and select the site after its loaded.",
       );
-      _browser.show();
+      setState(() {
+        _showingError = false;
+      });
     } else if (Helpers.isNullOrEmpty(_websiteTitle)) {
       // Do not save if no title was loaded
-      _browser.hide();
+      setState(() {
+        _showingError = true;
+      });
       Helpers.displayAlert(
-        context,
-        "Error",
-        "Unable to load title from the selected website. Please type in the title of the website manually.",
+        _mainContext,
+        "Error, please to load title from the selected website. Please type in the title of the website manually.",
       );
-      _browser.show();
+      setState(() {
+        _showingError = false;
+      });
       _showAdvancedPage();
     } else {
       bOK = true;
@@ -148,8 +165,7 @@ class _AddWebsiteState extends State<AddWebsite> {
     try {
       _websiteUrl = url;
       // Find page title
-      _websiteTitle =
-          await _browser.evalJavascript("window.document.title");
+      _websiteTitle = await _browser.evalJavascript("window.document.title");
       _websiteTitle = _websiteTitle.replaceAll('"', '');
     } catch (e) {
       print("Exception in _AddWebsiteState::onUrlChanged, ${e.toString()}");
