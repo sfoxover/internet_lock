@@ -1,10 +1,12 @@
 // Handle lock state of app in singleton class
-class LockManager{
+import 'package:internet_lock/models/user.dart';
+
+class LockManager {
   // Singleton object
   static final LockManager _singleton = new LockManager._internal();
   LockManager._internal();
   static LockManager get instance => _singleton;
 
-   // Is parent logged in
-  bool adminLoggedIn = false;
+  // Logged in user
+  User loggedInUser;
 }

@@ -68,7 +68,7 @@ class _UserLogonState extends State<UserLogon> {
   _getAppBarButtons() {
     try {
       List<Widget> results = [];
-      if (LockManager.instance.adminLoggedIn) {
+      if (LockManager.instance.loggedInUser != null) {
         // Edit websites
         results.add(RaisedButton.icon(
             icon: const Icon(Icons.web_asset, size: 18.0, color: Colors.white),
@@ -150,7 +150,7 @@ class _UserLogonState extends State<UserLogon> {
 
   // render correct logon button
   _getUserLogonButton(User user) {
-    if (LockManager.instance.adminLoggedIn) {
+    if (LockManager.instance.loggedInUser != null) {
       return new SizedBox(
           height: 35,
           child: RaisedButton.icon(
@@ -245,6 +245,13 @@ class _UserLogonState extends State<UserLogon> {
                       child: new Text("Yes"),
                       onPressed: () {
                         UserBloc.instance.delete(_selectedUser.id);
+                        // Log out deleted user
+                        if (LockManager.instance.loggedInUser.id ==
+                            _selectedUser.id) {
+                          LockManager.instance.loggedInUser = null;
+                        }
+                        _selectedUser = null;
+                        _selectedIndex = -1;
                         Navigator.of(context).pop();
                       },
                     ),
@@ -281,12 +288,15 @@ class _UserLogonState extends State<UserLogon> {
                   onPressed: () {
                     if (user.passwordMatches(password.text)) {
                       setState(() {
-                        LockManager.instance.adminLoggedIn = true;
+                        LockManager.instance.loggedInUser = user;
                       });
                       Navigator.of(context).pop();
                     } else {
                       final snackBar = SnackBar(
-                        content: Text('Your pin or password was not correct!', textAlign: TextAlign.center,),
+                        content: Text(
+                          'Your pin or password was not correct!',
+                          textAlign: TextAlign.center,
+                        ),
                         backgroundColor: Theme.of(context).primaryColor,
                       );
                       Scaffold.of(_mainContext).showSnackBar(snackBar);
@@ -309,7 +319,7 @@ class _UserLogonState extends State<UserLogon> {
   // Log out user
   void _userLogout(User user) {
     setState(() {
-      LockManager.instance.adminLoggedIn = false;
+      LockManager.instance.loggedInUser = null;
     });
     Navigator.of(context).popUntil(ModalRoute.withName('/'));
   }

@@ -71,7 +71,7 @@ class _MainPageState extends State<MainPage> {
   _getAppBarButtons() {
     try {
       List<Widget> results = [];
-      if (LockManager.instance.adminLoggedIn) {
+      if (LockManager.instance.loggedInUser != null) {
         // Add new website button
         results.add(RaisedButton.icon(
             icon:
