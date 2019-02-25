@@ -87,7 +87,8 @@ class UserDBProvider {
     try {
       final db = await database;
       var result = await db.rawQuery("SELECT COUNT(*) from users");
-      return (result == null || result.length == 0);
+      bool empty = (result == null || Sqflite.firstIntValue(result) == 0);
+      return empty;
     } catch (e) {
       print("Exception in UserDBProvider::isEmpty, ${e.toString()}");
     }
