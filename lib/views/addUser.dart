@@ -17,6 +17,8 @@ class _AddUserState extends State<AddUser> {
   final _formKey = GlobalKey<FormState>();
   // User
   User _user;
+  // User pin control
+  final _userPinKey = GlobalKey();
 
   // Set any web site values loaded from search page
   _AddUserState(this._user) {
@@ -39,7 +41,7 @@ class _AddUserState extends State<AddUser> {
             children: <Widget>[
               // Website title
               new ListTile(
-                leading: const Icon(Icons.title),
+                leading: const Icon(Icons.person),
                 title: TextFormField(
                   autovalidate: false,
                   initialValue: _user.name,
@@ -59,7 +61,9 @@ class _AddUserState extends State<AddUser> {
               new ListTile(
                 leading: const Icon(Icons.security),
                 title: TextFormField(
+                  key: _userPinKey,
                   autovalidate: false,
+                  obscureText: true,
                   initialValue: _user.pin,
                   decoration: new InputDecoration(
                     hintText: "User pin or password",
@@ -70,6 +74,30 @@ class _AddUserState extends State<AddUser> {
                       return 'Please enter a pin or password to logon for this user.';
                     } else if (value.length < 4) {
                       return 'Please user at least 4 digits for a pin or password.';
+                    }
+                  },
+                ),
+              ),
+
+              // Repeat pin password
+              new ListTile(
+                leading: const Icon(Icons.repeat),
+                title: TextFormField(
+                  autovalidate: false,
+                  obscureText: true,
+                  initialValue: _user.pin,
+                  decoration: new InputDecoration(
+                    hintText: "Repeat pin or password",
+                  ),
+                  validator: (value) {
+                    final FormFieldState<String> passwordField =
+                        _userPinKey.currentState;
+                    if (value.isEmpty) {
+                      return 'Error, please enter a pin or password to logon for this user.';
+                    } else if (value.length < 4) {
+                      return 'Error, please user at least 4 digits for a pin or password.';
+                    } else if (value != passwordField.value) {
+                      return 'Error, pin or passwords do not match.';
                     }
                   },
                 ),
