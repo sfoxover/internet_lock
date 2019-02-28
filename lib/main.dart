@@ -46,6 +46,8 @@ class _MainPageState extends State<MainPage> {
   Website _selectedWebsite;
   // Device name
   String _deviceName = "tablet";
+  // Check if app is pinned
+  bool _isAppPinned = false;
 
   @override
   Widget build(BuildContext context) {
@@ -113,13 +115,24 @@ class _MainPageState extends State<MainPage> {
             label: Text('Parent settings',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
             onPressed: _parentLogonClick));
-        // Lock apps
-        results.add(RaisedButton.icon(
-            icon: const Icon(Icons.lock, size: 18.0, color: Colors.white),
-            color: Theme.of(context).primaryColor,
-            label: Text('Lock $_deviceName',
-                style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            onPressed: _lockAppsClick));
+        // App is pinned show locked icon
+        if (_isAppPinned) {
+          results.add(RaisedButton.icon(
+              icon: const Icon(Icons.lock, size: 18.0, color: Colors.white),
+              color: Theme.of(context).primaryColor,
+              label: Text('$_deviceName locked',
+                  style: TextStyle(color: Colors.white, fontSize: 16.0)),
+              onPressed: _lockAppsClick));
+        } else {
+          // Show unlocked icon to pin app
+          results.add(RaisedButton.icon(
+              icon:
+                  const Icon(Icons.lock_open, size: 18.0, color: Colors.white),
+              color: Theme.of(context).primaryColor,
+              label: Text('Lock $_deviceName',
+                  style: TextStyle(color: Colors.white, fontSize: 16.0)),
+              onPressed: _lockAppsClick));
+        }
       }
       return results;
     } catch (e) {
@@ -281,10 +294,33 @@ class _MainPageState extends State<MainPage> {
   // Lock device to this app
   void _lockAppsClick() async {
     try {
-      final platform = const MethodChannel('com.sfoxover.internetlock/lockapp');
-      await platform.invokeMethod("lockapp");
+      if (await _checkIfAppPinned()) {
+        setState(() {
+          _isAppPinned:
+          true;
+        });
+      } else {
+        final platform =
+            const MethodChannel('com.sfoxover.internetlock/lockapp');
+        await platform.invokeMethod("lockApp");
+      }
     } catch (e) {
       print("Exception in main::_lockAppsClick, ${e.toString()}");
     }
+  }
+
+  // Test if app is pinned
+  Future<bool> _checkIfAppPinned() async {
+    bool pinned = false;
+    try {
+      final platform = const MethodChannel('com.sfoxover.internetlock/lockapp');
+      var result = await platform.invokeMethod("getLockedStatus");
+      if (result == "locked") {
+        pinned = true;
+      }
+    } catch (e) {
+      print("Exception in main::_checkIfAppPinned, ${e.toString()}");
+    }
+    return pinned;
   }
 }
