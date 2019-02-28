@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:internet_lock/helpers/defines.dart';
 import 'package:internet_lock/helpers/lockManager.dart';
 import 'package:internet_lock/models/website.dart';
@@ -278,5 +279,12 @@ class _MainPageState extends State<MainPage> {
   }
 
   // Lock device to this app
-  void _lockAppsClick() {}
+  void _lockAppsClick() async {
+    try {
+      final platform = const MethodChannel('com.sfoxover.internetlock/lockapp');
+      await platform.invokeMethod("lockapp");
+    } catch (e) {
+      print("Exception in main::_lockAppsClick, ${e.toString()}");
+    }
+  }
 }
