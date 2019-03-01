@@ -48,7 +48,7 @@ class _UserLogonState extends State<UserLogon> {
         appBar: AppBar(
           // Here we take the value from the MyHomePage object that was created by
           // the App.build method, and use it to set our appbar title.
-          title: Text("Parent logon settings"),
+          title: Text("Parent logon"),
           actions: _getAppBarButtons(),
         ),
         body: StreamBuilder<List<User>>(
@@ -73,7 +73,7 @@ class _UserLogonState extends State<UserLogon> {
         results.add(RaisedButton.icon(
             icon: const Icon(Icons.web_asset, size: 18.0, color: Colors.white),
             color: Theme.of(context).primaryColor,
-            label: Text('Edit websites',
+            label: Text('Add/edit website',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
             onPressed: () {
               Navigator.of(context).popUntil(ModalRoute.withName('/'));
@@ -88,21 +88,25 @@ class _UserLogonState extends State<UserLogon> {
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
             onPressed: _addUserClick));
 
-        // Edit user button
+        // Logout parent
         results.add(RaisedButton.icon(
-            icon: const Icon(Icons.edit, size: 18.0, color: Colors.white),
+            icon: const Icon(Icons.lock_open, size: 30, color: Colors.white),
             color: Theme.of(context).primaryColor,
-            label: Text('Edit',
+            label: Text('Logout',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            onPressed: _editUserClick));
-
-        // Delete user button
+            onPressed: () {
+              _userLogout(LockManager.instance.loggedInUser);
+            }));
+      } else {
+        // Logon parent
         results.add(RaisedButton.icon(
-            icon: const Icon(Icons.delete, size: 18.0, color: Colors.white),
+            icon: const Icon(Icons.lock, size: 30, color: Colors.white),
             color: Theme.of(context).primaryColor,
-            label: Text('Delete',
+            label: Text('Logon',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            onPressed: _deleteUserClick));
+            onPressed: () {
+              _userLogon(_selectedUser);
+            }));
       }
       return results;
     } catch (e) {
@@ -131,7 +135,7 @@ class _UserLogonState extends State<UserLogon> {
                 leading: Icon(Icons.supervised_user_circle),
                 selected: _selectedIndex == index,
                 // Logon user button
-                trailing: _getUserLogonButton(user),
+                trailing: _getListItemButtons(user),
                 // Select list view item
                 onTap: () {
                   setState(() {
@@ -148,31 +152,27 @@ class _UserLogonState extends State<UserLogon> {
     }
   }
 
-  // render correct logon button
-  _getUserLogonButton(User user) {
-    if (LockManager.instance.loggedInUser != null) {
-      return new SizedBox(
-          height: 35,
-          child: RaisedButton.icon(
-              icon: const Icon(Icons.lock_open, size: 30, color: Colors.white),
-              color: Theme.of(context).primaryColor,
-              label: Text('Lock',
-                  style: TextStyle(color: Colors.white, fontSize: 16.0)),
-              onPressed: () {
-                _userLogout(user);
-              }));
-    } else {
-      return new SizedBox(
-          height: 35,
-          child: RaisedButton.icon(
-              icon: const Icon(Icons.lock, size: 30, color: Colors.white),
-              color: Theme.of(context).primaryColor,
-              label: Text('Unlock',
-                  style: TextStyle(color: Colors.white, fontSize: 16.0)),
-              onPressed: () {
-                _userLogon(user);
-              }));
+  // Show edit and delete buttons on list item
+  Widget _getListItemButtons(User user) {
+    if (LockManager.instance.loggedInUser == null) {
+      return null;
     }
+    var buttons = new List<Widget>();
+    final Color primary = Theme.of(context).primaryColor;
+
+    // Edit user button
+    buttons.add(IconButton(
+        icon: const Icon(Icons.edit, size: 18.0),
+        color: primary,
+        onPressed: () => _editUserClick(user)));
+
+    // Delete user button
+    buttons.add(IconButton(
+        icon: const Icon(Icons.delete, size: 18.0),
+        color: primary,
+        onPressed: () => _deleteUserClick(user)));
+
+    return new ButtonBar(mainAxisSize: MainAxisSize.min, children: buttons);
   }
 
   // Return placeholder message
@@ -212,13 +212,13 @@ class _UserLogonState extends State<UserLogon> {
   }
 
   // Edit selected user
-  void _editUserClick() {
+  void _editUserClick(User user) {
     try {
-      if (_selectedUser != null) {
+      if (user != null) {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => AddUser(user: _selectedUser),
+            builder: (context) => AddUser(user: user),
           ),
         );
       }
@@ -228,9 +228,9 @@ class _UserLogonState extends State<UserLogon> {
   }
 
   // Delete selected user
-  void _deleteUserClick() {
+  void _deleteUserClick(User user) {
     try {
-      if (_selectedUser != null) {
+      if (user != null) {
         showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -244,10 +244,9 @@ class _UserLogonState extends State<UserLogon> {
                     new FlatButton(
                       child: new Text("Yes"),
                       onPressed: () {
-                        UserBloc.instance.delete(_selectedUser.id);
+                        UserBloc.instance.delete(user.id);
                         // Log out deleted user
-                        if (LockManager.instance.loggedInUser.id ==
-                            _selectedUser.id) {
+                        if (LockManager.instance.loggedInUser.id == user.id) {
                           LockManager.instance.loggedInUser = null;
                         }
                         _selectedUser = null;

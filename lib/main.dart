@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:internet_lock/helpers/defines.dart';
@@ -7,7 +9,7 @@ import 'package:internet_lock/models/websitesBloc.dart';
 import 'package:internet_lock/views/addWebsite.dart';
 import 'package:internet_lock/views/addWebsiteAdvanced.dart';
 import 'package:internet_lock/views/loadWebsite.dart';
-import 'package:internet_lock/views/userLogon.dart';
+import 'package:internet_lock/views/parentLogon.dart';
 
 void main() => runApp(MyApp());
 
@@ -45,9 +47,11 @@ class _MainPageState extends State<MainPage> {
   // Selected website item
   Website _selectedWebsite;
   // Device name
-  String _deviceName = "tablet";
+  String _deviceName = "Tablet";
   // Check if app is pinned
   bool _isAppPinned = false;
+  // Poll for app pinned state change
+  Timer _timerAppPinned;
 
   @override
   Widget build(BuildContext context) {
@@ -84,22 +88,6 @@ class _MainPageState extends State<MainPage> {
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
             onPressed: _addWebsiteClick));
 
-        // Edit website button
-        results.add(RaisedButton.icon(
-            icon: const Icon(Icons.edit, size: 18.0, color: Colors.white),
-            color: Theme.of(context).primaryColor,
-            label: Text('Edit',
-                style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            onPressed: _editWebsiteClick));
-
-        // Delete website button
-        results.add(RaisedButton.icon(
-            icon: const Icon(Icons.delete, size: 18.0, color: Colors.white),
-            color: Theme.of(context).primaryColor,
-            label: Text('Delete',
-                style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            onPressed: _deleteWebsiteClick));
-
         // Parent logout button
         results.add(RaisedButton.icon(
             icon: const Icon(Icons.settings, size: 18.0, color: Colors.white),
@@ -112,7 +100,7 @@ class _MainPageState extends State<MainPage> {
         results.add(RaisedButton.icon(
             icon: const Icon(Icons.settings, size: 18.0, color: Colors.white),
             color: Theme.of(context).primaryColor,
-            label: Text('Parent settings',
+            label: Text('Parent logon',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
             onPressed: _parentLogonClick));
         // App is pinned show locked icon
@@ -147,13 +135,13 @@ class _MainPageState extends State<MainPage> {
   }
 
   // Edit website clicked
-  void _editWebsiteClick() {
+  void _editWebsiteClick(Website website) {
     try {
-      if (_selectedWebsite != null) {
+      if (website != null) {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => AddWebsiteAdvanced(website: _selectedWebsite),
+            builder: (context) => AddWebsiteAdvanced(website: website),
           ),
         );
       }
@@ -163,9 +151,9 @@ class _MainPageState extends State<MainPage> {
   }
 
   // Delete website clicked
-  void _deleteWebsiteClick() {
+  void _deleteWebsiteClick(Website website) {
     try {
-      if (_selectedWebsite != null) {
+      if (website != null) {
         showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -178,7 +166,7 @@ class _MainPageState extends State<MainPage> {
                     new FlatButton(
                       child: new Text("Yes"),
                       onPressed: () {
-                        WebsitesBloc.instance.delete(_selectedWebsite.id);
+                        WebsitesBloc.instance.delete(website.id);
                         Navigator.of(context).pop();
                       },
                     ),
@@ -215,18 +203,7 @@ class _MainPageState extends State<MainPage> {
                 leading: Image.network(item.favIconUrl, height: 35),
                 selected: _selectedIndex == index,
                 // Load website button
-                trailing: new SizedBox(
-                    height: 35,
-                    child: RaisedButton.icon(
-                        icon: const Icon(Icons.play_arrow,
-                            size: 35.0, color: Colors.white),
-                        color: Theme.of(context).primaryColor,
-                        label: Text('Load',
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 16.0)),
-                        onPressed: () {
-                          _loadWebsite(item);
-                        })),
+                trailing: _getListTrailngButtons(item),
                 onTap: () {
                   setState(() {
                     _selectedIndex = index;
@@ -241,6 +218,34 @@ class _MainPageState extends State<MainPage> {
       print("Exception in main::_getWebsitesView, ${e.toString()}");
       return null;
     }
+  }
+
+  // Show trailing edit and delete buttons
+  Widget _getListTrailngButtons(Website website) {
+    var buttons = new List<Widget>();
+    final Color primary = Theme.of(context).primaryColor;
+
+    // Button for admin user
+    if (LockManager.instance.loggedInUser != null) {
+      // Edit website button
+      buttons.add(IconButton(
+          icon: const Icon(Icons.edit, size: 18.0),
+          color: primary,
+          onPressed: () => _editWebsiteClick(website)));
+
+      // Delete website button
+      buttons.add(IconButton(
+          icon: const Icon(Icons.delete, size: 18.0),
+          color: primary,
+          onPressed: () => _deleteWebsiteClick(website)));
+    }
+    // Load website button
+    buttons.add(IconButton(
+        icon: const Icon(Icons.play_arrow, size: 18.0),
+        color: primary,
+        onPressed: () => _loadWebsite(website)));
+
+    return new ButtonBar(mainAxisSize: MainAxisSize.min, children: buttons);
   }
 
   // Load selected web site
@@ -296,13 +301,22 @@ class _MainPageState extends State<MainPage> {
     try {
       if (await _checkIfAppPinned()) {
         setState(() {
-          _isAppPinned:
-          true;
+          _isAppPinned = true;
         });
       } else {
-        final platform =
-            const MethodChannel('com.sfoxover.internetlock/lockapp');
-        await platform.invokeMethod("lockApp");
+        // Allow toggle pinned button state
+        if (_isAppPinned == true) {
+          setState(() {
+            _isAppPinned = false;
+          });
+        } else {
+          final platform =
+              const MethodChannel('com.sfoxover.internetlock/lockapp');
+          await platform.invokeMethod("lockApp");
+          // Test for app pinned state change for 60 seconds
+          _timerAppPinned = new Timer.periodic(
+              const Duration(seconds: 1), _pollForLockStateChange);
+        }
       }
     } catch (e) {
       print("Exception in main::_lockAppsClick, ${e.toString()}");
@@ -322,5 +336,17 @@ class _MainPageState extends State<MainPage> {
       print("Exception in main::_checkIfAppPinned, ${e.toString()}");
     }
     return pinned;
+  }
+
+  // Test for app pinned state change for 60 seconds
+  _pollForLockStateChange(Timer timer) async {
+    if (await _checkIfAppPinned()) {
+      setState(() {
+        _isAppPinned = true;
+      });
+      timer.cancel();
+    } else if (timer.tick >= 60) {
+      timer.cancel();
+    }
   }
 }

@@ -23,11 +23,13 @@ public class MainActivity extends FlutterActivity {
                 new MethodCallHandler() {
                     @Override
                     public void onMethodCall(MethodCall call, MethodChannel.Result result) {
+                      // Call lock to pin app
                       if (call.method.contentEquals("lockApp")) {
                         startLockTask();
                         result.success("OK");
                       }
                       else if (call.method.contentEquals("getLockedStatus")) {
+                        // Check if app is currently pinned
                         boolean isLocked = false;
                         ActivityManager activityManager=(ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
                         if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) { // When SDK version is 23
