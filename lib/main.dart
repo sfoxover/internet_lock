@@ -66,7 +66,7 @@ class _MainPageState extends State<MainPage> {
             stream: WebsitesBloc.instance.websites,
             builder:
                 (BuildContext context, AsyncSnapshot<List<Website>> snapshot) {
-              if (snapshot.hasData) {
+              if (snapshot.hasData && snapshot.data.length > 0) {
                 return _getWebsitesView(snapshot);
               } else {
                 return _getEmptyWebsiteList();
@@ -78,6 +78,7 @@ class _MainPageState extends State<MainPage> {
   _getAppBarButtons() {
     try {
       List<Widget> results = [];
+      // User is logged in
       if (LockManager.instance.loggedInUser != null) {
         // Add new website button
         results.add(RaisedButton.icon(
@@ -87,14 +88,26 @@ class _MainPageState extends State<MainPage> {
             label: Text('Add website',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
             onPressed: _addWebsiteClick));
-
-        // Parent logout button
+        
+        // Parent settings button
         results.add(RaisedButton.icon(
             icon: const Icon(Icons.settings, size: 18.0, color: Colors.white),
             color: Theme.of(context).primaryColor,
             label: Text('Parent settings',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
             onPressed: _parentLogonClick));
+
+        // Logout parent
+        results.add(RaisedButton.icon(
+            icon: const Icon(Icons.lock_open, size: 30, color: Colors.white),
+            color: Theme.of(context).primaryColor,
+            label: Text('Logout',
+                style: TextStyle(color: Colors.white, fontSize: 16.0)),
+            onPressed: () {
+              // Log out user
+              setState(() { LockManager.instance.loggedInUser = null; });
+            })
+        );
       } else {
         // Parent logon button
         results.add(RaisedButton.icon(
@@ -103,6 +116,7 @@ class _MainPageState extends State<MainPage> {
             label: Text('Parent logon',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
             onPressed: _parentLogonClick));
+        
         // App is pinned show locked icon
         if (_isAppPinned) {
           results.add(RaisedButton.icon(
@@ -265,7 +279,7 @@ class _MainPageState extends State<MainPage> {
       var sites = new List<Website>();
       sites.add(new Website(
           id: -1,
-          title: "Click unlock to add a new website.",
+          title: "Click 'Parent logon' to add a new website.",
           favIconUrl: Defines.SEARCH_FAV_ICON_URL));
       return ListView.builder(
         itemCount: sites.length,
