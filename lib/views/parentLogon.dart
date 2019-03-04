@@ -90,7 +90,7 @@ class _UserLogonState extends State<UserLogon> {
 
         // Logout parent
         results.add(RaisedButton.icon(
-            icon: const Icon(Icons.lock_open, size: 30, color: Colors.white),
+            icon: const Icon(Icons.lock_open, size: 18, color: Colors.white),
             color: Theme.of(context).primaryColor,
             label: Text('Logout',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),

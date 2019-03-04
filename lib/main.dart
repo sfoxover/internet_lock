@@ -78,8 +78,9 @@ class _MainPageState extends State<MainPage> {
   _getAppBarButtons() {
     try {
       List<Widget> results = [];
+      bool isLoggedIn = LockManager.instance.loggedInUser != null;
       // User is logged in
-      if (LockManager.instance.loggedInUser != null) {
+      if (isLoggedIn) {
         // Add new website button
         results.add(RaisedButton.icon(
             icon:
@@ -88,16 +89,6 @@ class _MainPageState extends State<MainPage> {
             label: Text('Add site',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
             onPressed: _addWebsiteClick));
-
-        // Allow admin to unpin device
-        if (_isAppPinned) {
-          results.add(RaisedButton.icon(
-              icon: const Icon(Icons.lock, size: 18.0, color: Colors.white),
-              color: Theme.of(context).primaryColor,
-              label: Text('Unlock $_deviceName',
-                  style: TextStyle(color: Colors.white, fontSize: 16.0)),
-              onPressed: _unlockAppsClick));
-        }
       }
 
       // Parent logon button
@@ -107,6 +98,16 @@ class _MainPageState extends State<MainPage> {
           label: Text('Parents',
               style: TextStyle(color: Colors.white, fontSize: 16.0)),
           onPressed: _parentLogonClick));
+
+      // Allow admin to unpin device
+      if (isLoggedIn && _isAppPinned) {
+        results.add(RaisedButton.icon(
+            icon: const Icon(Icons.lock, size: 18.0, color: Colors.white),
+            color: Theme.of(context).primaryColor,
+            label: Text('Unlock $_deviceName',
+                style: TextStyle(color: Colors.white, fontSize: 16.0)),
+            onPressed: _unlockAppsClick));
+      }
 
       // Show icon to lock app
       if (!_isAppPinned) {
