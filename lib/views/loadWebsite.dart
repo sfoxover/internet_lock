@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:internet_lock/models/website.dart';
+import 'package:internet_lock/widgets/iconButtonHelper.dart';
 
 class LoadWebsite extends StatefulWidget {
   final Website website;
@@ -34,33 +35,14 @@ class _LoadWebsiteState extends State<LoadWebsite> {
   _getAppBarButtons() {
     List<Widget> results = [];
     // Home page button
-    results.add(RaisedButton.icon(
-        icon: const Icon(Icons.home, size: 18.0, color: Colors.white),
-        color: Theme.of(context).primaryColor,
-        label:
-            Text('Home', style: TextStyle(color: Colors.white, fontSize: 16.0)),
-        onPressed: _loadHomePage));
+    results.add(IconButtonHelper.createRaisedButton(
+        "Home", Icons.home, context, _loadHomePage));
     // Back button
-    results.add(RaisedButton.icon(
-        icon: const Icon(Icons.arrow_back, size: 18.0, color: Colors.white),
-        color: Theme.of(context).primaryColor,
-        label:
-            Text('Back', style: TextStyle(color: Colors.white, fontSize: 16.0)),
-        onPressed: _goBack));
+    results.add(IconButtonHelper.createRaisedButton(
+        "Back", Icons.arrow_back, context, _goBack));
     // Forward button
-    results.add(RaisedButton(
-        child: Row(
-          children: <Widget>[
-            Text('Forward',
-                style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child:
-                    Icon(Icons.arrow_forward, size: 18.0, color: Colors.white))
-          ],
-        ),
-        color: Theme.of(context).primaryColor,
-        onPressed: _goForward));
+    results.add(IconButtonHelper.createRaisedButtonRightIcon(
+        "Forward", Icons.arrow_forward, context, _goForward));
     return results;
   }
 

@@ -5,6 +5,7 @@ import 'package:internet_lock/helpers/helpers.dart';
 import 'package:internet_lock/models/website.dart';
 import 'package:internet_lock/models/websitesBloc.dart';
 import 'package:internet_lock/views/addWebsiteAdvanced.dart';
+import 'package:internet_lock/widgets/iconButtonHelper.dart';
 
 class AddWebsite extends StatefulWidget {
   AddWebsite({Key key}) : super(key: key);
@@ -59,26 +60,14 @@ class _AddWebsiteState extends State<AddWebsite> {
   _getAppBarButtons() {
     List<Widget> results = [];
     // Save button
-    results.add(RaisedButton.icon(
-        icon: const Icon(Icons.save_alt, size: 18.0, color: Colors.white),
-        color: Theme.of(context).primaryColor,
-        label: Text('Save site',
-            style: TextStyle(color: Colors.white, fontSize: 16.0)),
-        onPressed: _addSite));
+    results.add(IconButtonHelper.createRaisedButton(
+        "Save site", Icons.save_alt, context, _addSite));
     // Cancel button
-    results.add(RaisedButton.icon(
-        icon: const Icon(Icons.cancel, size: 18.0, color: Colors.white),
-        color: Theme.of(context).primaryColor,
-        label: Text('Cancel',
-            style: TextStyle(color: Colors.white, fontSize: 16.0)),
-        onPressed: _cancel));
+    results.add(IconButtonHelper.createRaisedButton(
+        "Cancel", Icons.cancel, context, _cancel));
     // Show advanced button
-    results.add(RaisedButton.icon(
-        icon: const Icon(Icons.settings, size: 18.0, color: Colors.white),
-        color: Theme.of(context).primaryColor,
-        label: Text('Advanced',
-            style: TextStyle(color: Colors.white, fontSize: 16.0)),
-        onPressed: _showAdvancedPage));
+    results.add(IconButtonHelper.createRaisedButton(
+        "Advanced", Icons.settings, context, _showAdvancedPage));
     return results;
   }
 
@@ -88,19 +77,22 @@ class _AddWebsiteState extends State<AddWebsite> {
     // Check for empty site
     if (Helpers.isNullOrEmpty(_websiteUrl)) {
       Helpers.displayAlert(
-        _mainViewKey, _appBarKey.currentContext.size.height,
+        _mainViewKey,
+        _appBarKey.currentContext.size.height,
         "Error, please wait until your selected site is loaded, then click this button.",
       );
     } else if (Helpers.isSearchUriMatch(_websiteUrl)) {
       // Do not save url if its a search result
       Helpers.displayAlert(
-        _mainViewKey,_appBarKey.currentContext.size.height,
+        _mainViewKey,
+        _appBarKey.currentContext.size.height,
         "Error, please click the search result link you want and select the site after its loaded.",
       );
     } else if (Helpers.isNullOrEmpty(_websiteTitle)) {
       // Do not save if no title was loaded
       Helpers.displayAlert(
-        _mainViewKey,_appBarKey.currentContext.size.height,
+        _mainViewKey,
+        _appBarKey.currentContext.size.height,
         "Error, please to load title from the selected website. Please type in the title of the website manually.",
       );
       _showAdvancedPage();

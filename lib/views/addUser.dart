@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:internet_lock/models/user.dart';
 import 'package:internet_lock/models/userBloc.dart';
+import 'package:internet_lock/widgets/iconButtonHelper.dart';
 
 class AddUser extends StatefulWidget {
   // User
@@ -110,23 +111,12 @@ class _AddUserState extends State<AddUser> {
   // Display AppBar buttons dependent on admin logged in
   _getAppBarButtons() {
     List<Widget> results = [];
-
     // Save button
-    results.add(RaisedButton.icon(
-        icon: const Icon(Icons.save_alt, size: 18.0, color: Colors.white),
-        color: Theme.of(context).primaryColor,
-        label: Text('Save user',
-            style: TextStyle(color: Colors.white, fontSize: 16.0)),
-        onPressed: _saveSite));
-
+    results.add(IconButtonHelper.createRaisedButton(
+        "Save user", Icons.save_alt, context, _saveSite));
     // Cancel button
-    results.add(RaisedButton.icon(
-        icon: const Icon(Icons.cancel, size: 18.0, color: Colors.white),
-        color: Theme.of(context).primaryColor,
-        label: Text('Cancel',
-            style: TextStyle(color: Colors.white, fontSize: 16.0)),
-        onPressed: _cancel));
-
+    results.add(IconButtonHelper.createRaisedButton(
+        "Cancel", Icons.cancel, context, _cancel));
     return results;
   }
 

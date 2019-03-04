@@ -3,6 +3,7 @@ import 'package:internet_lock/helpers/helpers.dart';
 import 'package:internet_lock/models/website.dart';
 import 'package:internet_lock/models/websitesBloc.dart';
 import 'package:internet_lock/views/addWebsite.dart';
+import 'package:internet_lock/widgets/iconButtonHelper.dart';
 
 class AddWebsiteAdvanced extends StatefulWidget {
   // Website
@@ -84,30 +85,15 @@ class _AddWebsiteAdvancedState extends State<AddWebsiteAdvanced> {
   // Display AppBar buttons dependent on admin logged in
   _getAppBarButtons() {
     List<Widget> results = [];
-
     // Save button
-    results.add(RaisedButton.icon(
-        icon: const Icon(Icons.save_alt, size: 18.0, color: Colors.white),
-        color: Theme.of(context).primaryColor,
-        label: Text('Save site',
-            style: TextStyle(color: Colors.white, fontSize: 16.0)),
-        onPressed: _saveSite));
-
+    results.add(IconButtonHelper.createRaisedButton(
+        "Save site", Icons.save_alt, context, _saveSite));
     // Cancel button
-    results.add(RaisedButton.icon(
-        icon: const Icon(Icons.cancel, size: 18.0, color: Colors.white),
-        color: Theme.of(context).primaryColor,
-        label: Text('Cancel',
-            style: TextStyle(color: Colors.white, fontSize: 16.0)),
-        onPressed: _cancel));
-
+    results.add(IconButtonHelper.createRaisedButton(
+        "Cancel", Icons.cancel, context, _cancel));
     // Show advanced button
-    results.add(RaisedButton.icon(
-        icon: const Icon(Icons.settings, size: 18.0, color: Colors.white),
-        color: Theme.of(context).primaryColor,
-        label: Text('Search page',
-            style: TextStyle(color: Colors.white, fontSize: 16.0)),
-        onPressed: _showSearchPage));
+    results.add(IconButtonHelper.createRaisedButton(
+        "Search page", Icons.settings, context, _showSearchPage));
     return results;
   }
 

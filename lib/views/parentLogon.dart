@@ -4,6 +4,7 @@ import 'package:internet_lock/models/user.dart';
 import 'package:internet_lock/models/userBloc.dart';
 import 'package:internet_lock/models/userDbProvider.dart';
 import 'package:internet_lock/views/addUser.dart';
+import 'package:internet_lock/widgets/iconButtonHelper.dart';
 
 class UserLogon extends StatefulWidget {
   // Constructor
@@ -70,33 +71,20 @@ class _UserLogonState extends State<UserLogon> {
       List<Widget> results = [];
       if (LockManager.instance.loggedInUser != null) {
         // Edit websites
-        results.add(RaisedButton.icon(
-            icon: const Icon(Icons.web_asset, size: 18.0, color: Colors.white),
-            color: Theme.of(context).primaryColor,
-            label: Text('Add/edit website',
-                style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            onPressed: () {
-              Navigator.of(context).popUntil(ModalRoute.withName('/'));
-            }));
-
+        results.add(IconButtonHelper.createRaisedButton(
+            "Add/edit website",
+            Icons.web_asset,
+            context,
+            () => Navigator.of(context).popUntil(ModalRoute.withName('/'))));
         // Add new user button
-        results.add(RaisedButton.icon(
-            icon:
-                const Icon(Icons.library_add, size: 18.0, color: Colors.white),
-            color: Theme.of(context).primaryColor,
-            label: Text('Add parent',
-                style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            onPressed: _addUserClick));
-
+        results.add(IconButtonHelper.createRaisedButton(
+            "Add parent", Icons.library_add, context, _addUserClick));
         // Logout parent
-        results.add(RaisedButton.icon(
-            icon: const Icon(Icons.lock_open, size: 18, color: Colors.white),
-            color: Theme.of(context).primaryColor,
-            label: Text('Logout',
-                style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            onPressed: () {
-              _userLogout(LockManager.instance.loggedInUser);
-            }));
+        results.add(IconButtonHelper.createRaisedButton(
+            "Logout",
+            Icons.lock_open,
+            context,
+            () => _userLogout(LockManager.instance.loggedInUser)));
       }
       return results;
     } catch (e) {
@@ -152,7 +140,6 @@ class _UserLogonState extends State<UserLogon> {
           icon: const Icon(Icons.edit, size: 18.0),
           color: primary,
           onPressed: () => _editUserClick(user)));
-
       // Delete user button
       buttons.add(IconButton(
           icon: const Icon(Icons.delete, size: 18.0),
@@ -160,14 +147,8 @@ class _UserLogonState extends State<UserLogon> {
           onPressed: () => _deleteUserClick(user)));
     } else {
       // Logon parent
-      buttons.add(RaisedButton.icon(
-          icon: const Icon(Icons.lock, size: 18, color: Colors.purple),
-          color: Colors.white,
-          label:
-              Text('Logon', style: TextStyle(color: primary, fontSize: 16.0)),
-          onPressed: () {
-            _userLogon(user);
-          }));
+      buttons.add(IconButtonHelper.createRaisedButton(
+          "Logon", Icons.lock, context, () => _userLogon(user)));
     }
     return new ButtonBar(mainAxisSize: MainAxisSize.min, children: buttons);
   }

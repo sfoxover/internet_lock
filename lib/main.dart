@@ -10,6 +10,7 @@ import 'package:internet_lock/views/addWebsite.dart';
 import 'package:internet_lock/views/addWebsiteAdvanced.dart';
 import 'package:internet_lock/views/loadWebsite.dart';
 import 'package:internet_lock/views/parentLogon.dart';
+import 'package:internet_lock/widgets/iconButtonHelper.dart';
 
 void main() => runApp(MyApp());
 
@@ -82,41 +83,17 @@ class _MainPageState extends State<MainPage> {
       // User is logged in
       if (isLoggedIn) {
         // Add new website button
-        results.add(RaisedButton.icon(
-            icon:
-                const Icon(Icons.library_add, size: 18.0, color: Colors.white),
-            color: Theme.of(context).primaryColor,
-            label: Text('Add site',
-                style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            onPressed: _addWebsiteClick));
+        results.add(IconButtonHelper.createRaisedButton("Add site", Icons.library_add, context, _addWebsiteClick));
       }
-
       // Parent logon button
-      results.add(RaisedButton.icon(
-          icon: const Icon(Icons.settings, size: 18.0, color: Colors.white),
-          color: Theme.of(context).primaryColor,
-          label: Text('Parents',
-              style: TextStyle(color: Colors.white, fontSize: 16.0)),
-          onPressed: _parentLogonClick));
-
-      // Allow admin to unpin device
+      results.add(IconButtonHelper.createRaisedButton("Parents", Icons.settings, context, _parentLogonClick));
+      // Allow admin to unpin device      
       if (isLoggedIn && _isAppPinned) {
-        results.add(RaisedButton.icon(
-            icon: const Icon(Icons.lock, size: 18.0, color: Colors.white),
-            color: Theme.of(context).primaryColor,
-            label: Text('Unlock $_deviceName',
-                style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            onPressed: _unlockAppsClick));
+        results.add(IconButtonHelper.createRaisedButton("Unlock $_deviceName", Icons.lock_open, context, _unlockAppsClick));
       }
-
       // Show icon to lock app
       if (!_isAppPinned) {
-        results.add(RaisedButton.icon(
-            icon: const Icon(Icons.lock_open, size: 18.0, color: Colors.white),
-            color: Theme.of(context).primaryColor,
-            label: Text('Lock $_deviceName',
-                style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            onPressed: _lockAppsClick));
+        results.add(IconButtonHelper.createRaisedButton("Lock $_deviceName", Icons.lock, context, _lockAppsClick));
       }
       return results;
     } catch (e) {
