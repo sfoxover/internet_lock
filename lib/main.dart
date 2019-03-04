@@ -85,57 +85,37 @@ class _MainPageState extends State<MainPage> {
             icon:
                 const Icon(Icons.library_add, size: 18.0, color: Colors.white),
             color: Theme.of(context).primaryColor,
-            label: Text('Add website',
+            label: Text('Add site',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
             onPressed: _addWebsiteClick));
 
-        // Parent settings button
-        results.add(RaisedButton.icon(
-            icon: const Icon(Icons.settings, size: 18.0, color: Colors.white),
-            color: Theme.of(context).primaryColor,
-            label: Text('Parent settings',
-                style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            onPressed: _parentLogonClick));
-
-        // Logout parent
-        results.add(RaisedButton.icon(
-            icon: const Icon(Icons.lock_open, size: 30, color: Colors.white),
-            color: Theme.of(context).primaryColor,
-            label: Text('Logout',
-                style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            onPressed: () {
-              // Log out user
-              setState(() {
-                LockManager.instance.loggedInUser = null;
-              });
-            }));
-      } else {
-        // Parent logon button
-        results.add(RaisedButton.icon(
-            icon: const Icon(Icons.settings, size: 18.0, color: Colors.white),
-            color: Theme.of(context).primaryColor,
-            label: Text('Parent logon',
-                style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            onPressed: _parentLogonClick));
-
-        // App is pinned show locked icon
+        // Allow admin to unpin device
         if (_isAppPinned) {
           results.add(RaisedButton.icon(
               icon: const Icon(Icons.lock, size: 18.0, color: Colors.white),
               color: Theme.of(context).primaryColor,
-              label: Text('$_deviceName locked',
+              label: Text('Unlock $_deviceName',
                   style: TextStyle(color: Colors.white, fontSize: 16.0)),
-              onPressed: _lockAppsClick));
-        } else {
-          // Show unlocked icon to pin app
-          results.add(RaisedButton.icon(
-              icon:
-                  const Icon(Icons.lock_open, size: 18.0, color: Colors.white),
-              color: Theme.of(context).primaryColor,
-              label: Text('Lock $_deviceName',
-                  style: TextStyle(color: Colors.white, fontSize: 16.0)),
-              onPressed: _lockAppsClick));
+              onPressed: _unlockAppsClick));
         }
+      }
+
+      // Parent logon button
+      results.add(RaisedButton.icon(
+          icon: const Icon(Icons.settings, size: 18.0, color: Colors.white),
+          color: Theme.of(context).primaryColor,
+          label: Text('Parents',
+              style: TextStyle(color: Colors.white, fontSize: 16.0)),
+          onPressed: _parentLogonClick));
+
+      // Show icon to lock app
+      if (!_isAppPinned) {
+        results.add(RaisedButton.icon(
+            icon: const Icon(Icons.lock_open, size: 18.0, color: Colors.white),
+            color: Theme.of(context).primaryColor,
+            label: Text('Lock $_deviceName',
+                style: TextStyle(color: Colors.white, fontSize: 16.0)),
+            onPressed: _lockAppsClick));
       }
       return results;
     } catch (e) {
@@ -314,30 +294,52 @@ class _MainPageState extends State<MainPage> {
   // Lock device to this app
   void _lockAppsClick() async {
     try {
-      if (await _checkIfAppPinned()) {
+      bool pinnedState = await _checkIfAppPinned();
+      // App already pinned, just update button state
+      if (pinnedState) {
         setState(() {
           _isAppPinned = true;
         });
+      } else {
+        // Start app pinned process
+        LockManager.instance.loggedInUser = null;
         final platform =
             const MethodChannel('com.sfoxover.internetlock/lockapp');
-        await platform.invokeMethod("unlockApp");
+        await platform.invokeMethod("lockApp");
+        // Test for app pinned state change for 60 seconds
+        _timerAppPinned = new Timer.periodic(
+            const Duration(seconds: 1), _pollForLockStateChange);
+      }
+    } catch (e) {
+      print("Exception in main::_lockAppsClick, ${e.toString()}");
+    }
+  }
+
+  // Unlock device
+  void _unlockAppsClick() async {
+    try {
+      bool pinnedState = await _checkIfAppPinned();
+      // App already unlocked, just update button state
+      if (!pinnedState) {
+        setState(() {
+          _isAppPinned = false;
+        });
       } else {
-        // Allow toggle pinned button state
-        if (_isAppPinned == true) {
-          setState(() {
-            _isAppPinned = false;
-          });
+        // Parent must logon to unlock
+        if (LockManager.instance.loggedInUser == null) {
+          _parentLogonClick();
         } else {
+          // Start app pinned process
           final platform =
               const MethodChannel('com.sfoxover.internetlock/lockapp');
-          await platform.invokeMethod("lockApp");
+          await platform.invokeMethod("unlockApp");
           // Test for app pinned state change for 60 seconds
           _timerAppPinned = new Timer.periodic(
               const Duration(seconds: 1), _pollForLockStateChange);
         }
       }
     } catch (e) {
-      print("Exception in main::_lockAppsClick, ${e.toString()}");
+      print("Exception in main::_unlockAppsClick, ${e.toString()}");
     }
   }
 
@@ -358,12 +360,17 @@ class _MainPageState extends State<MainPage> {
 
   // Test for app pinned state change for 60 seconds
   _pollForLockStateChange(Timer timer) async {
-    if (await _checkIfAppPinned()) {
+    bool pinnedState = await _checkIfAppPinned();
+    if (pinnedState && !_isAppPinned) {
       setState(() {
         _isAppPinned = true;
       });
-      timer.cancel();
-    } else if (timer.tick >= 60) {
+    } else if (!pinnedState && _isAppPinned) {
+      setState(() {
+        _isAppPinned = false;
+      });
+    }
+    if (timer.tick >= 60) {
       timer.cancel();
     }
   }

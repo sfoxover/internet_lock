@@ -97,16 +97,6 @@ class _UserLogonState extends State<UserLogon> {
             onPressed: () {
               _userLogout(LockManager.instance.loggedInUser);
             }));
-      } else {
-        // Logon parent
-        results.add(RaisedButton.icon(
-            icon: const Icon(Icons.lock, size: 30, color: Colors.white),
-            color: Theme.of(context).primaryColor,
-            label: Text('Logon',
-                style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            onPressed: () {
-              _userLogon(_selectedUser);
-            }));
       }
       return results;
     } catch (e) {
@@ -154,24 +144,31 @@ class _UserLogonState extends State<UserLogon> {
 
   // Show edit and delete buttons on list item
   Widget _getListItemButtons(User user) {
-    if (LockManager.instance.loggedInUser == null) {
-      return null;
-    }
     var buttons = new List<Widget>();
     final Color primary = Theme.of(context).primaryColor;
+    if (LockManager.instance.loggedInUser != null) {
+      // Edit user button
+      buttons.add(IconButton(
+          icon: const Icon(Icons.edit, size: 18.0),
+          color: primary,
+          onPressed: () => _editUserClick(user)));
 
-    // Edit user button
-    buttons.add(IconButton(
-        icon: const Icon(Icons.edit, size: 18.0),
-        color: primary,
-        onPressed: () => _editUserClick(user)));
-
-    // Delete user button
-    buttons.add(IconButton(
-        icon: const Icon(Icons.delete, size: 18.0),
-        color: primary,
-        onPressed: () => _deleteUserClick(user)));
-
+      // Delete user button
+      buttons.add(IconButton(
+          icon: const Icon(Icons.delete, size: 18.0),
+          color: primary,
+          onPressed: () => _deleteUserClick(user)));
+    } else {
+      // Logon parent
+      buttons.add(RaisedButton.icon(
+          icon: const Icon(Icons.lock, size: 18, color: Colors.purple),
+          color: Colors.white,
+          label:
+              Text('Logon', style: TextStyle(color: primary, fontSize: 16.0)),
+          onPressed: () {
+            _userLogon(user);
+          }));
+    }
     return new ButtonBar(mainAxisSize: MainAxisSize.min, children: buttons);
   }
 
@@ -289,7 +286,7 @@ class _UserLogonState extends State<UserLogon> {
                       setState(() {
                         LockManager.instance.loggedInUser = user;
                       });
-                      Navigator.of(context).pop();
+                      Navigator.of(context).popUntil(ModalRoute.withName('/'));
                     } else {
                       final snackBar = SnackBar(
                         content: Text(
