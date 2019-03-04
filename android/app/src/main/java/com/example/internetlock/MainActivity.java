@@ -47,6 +47,11 @@ public class MainActivity extends FlutterActivity {
                           result.success("unlocked");
                         }
                       }
+                      else if (call.method.contentEquals("unlockApp")) {
+                        // Stop lock task
+                        stopLockTask();
+                        result.success("OK");
+                      }
                     }
                 });
   }

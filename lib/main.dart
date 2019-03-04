@@ -88,7 +88,7 @@ class _MainPageState extends State<MainPage> {
             label: Text('Add website',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
             onPressed: _addWebsiteClick));
-        
+
         // Parent settings button
         results.add(RaisedButton.icon(
             icon: const Icon(Icons.settings, size: 18.0, color: Colors.white),
@@ -105,9 +105,10 @@ class _MainPageState extends State<MainPage> {
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
             onPressed: () {
               // Log out user
-              setState(() { LockManager.instance.loggedInUser = null; });
-            })
-        );
+              setState(() {
+                LockManager.instance.loggedInUser = null;
+              });
+            }));
       } else {
         // Parent logon button
         results.add(RaisedButton.icon(
@@ -116,7 +117,7 @@ class _MainPageState extends State<MainPage> {
             label: Text('Parent logon',
                 style: TextStyle(color: Colors.white, fontSize: 16.0)),
             onPressed: _parentLogonClick));
-        
+
         // App is pinned show locked icon
         if (_isAppPinned) {
           results.add(RaisedButton.icon(
@@ -317,6 +318,9 @@ class _MainPageState extends State<MainPage> {
         setState(() {
           _isAppPinned = true;
         });
+        final platform =
+            const MethodChannel('com.sfoxover.internetlock/lockapp');
+        await platform.invokeMethod("unlockApp");
       } else {
         // Allow toggle pinned button state
         if (_isAppPinned == true) {
