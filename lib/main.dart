@@ -239,31 +239,31 @@ class _MainPageState extends State<MainPage> {
   _getEmptyWebsiteView() {
     try {
       String text1 =
-          '- Click the "Parents" button to logon and add new websites.';
+          '1 - Click the "Parents" button to create a user logon with your pin or password. Then add websites you want to allow access to.';
       String text2 =
-          '- When you want to lock the device to only these websites, click "Lock $_deviceName".';
+          '2 - When you want to lock the device to only these websites, click "Lock $_deviceName".';
       String text3 =
-          '- When you are ready to unlock the device, click "Parents" and logon, after that you will then be able to click the "Unlock $_deviceName" button.';
+          '3 - When you are ready to unlock the device, click "Parents" and logon with the pin or password you created. After that you will then be able to click the "Unlock $_deviceName" button.';
       return Column(children: <Widget>[
         Card(child: ListTile(leading: Icon(Icons.web), title: Text('Welcome'))),
         Row(children: <Widget>[
           Expanded(
               child: Padding(
-                  padding: EdgeInsets.fromLTRB(29, 20, 20, 0),
+                  padding: EdgeInsets.fromLTRB(25, 20, 20, 0),
                   child:
                       Text(text1, style: Theme.of(context).textTheme.subhead)))
         ]),
         Row(children: <Widget>[
           Expanded(
               child: Padding(
-                  padding: EdgeInsets.fromLTRB(29, 20, 20, 0),
+                  padding: EdgeInsets.fromLTRB(25, 20, 20, 0),
                   child:
                       Text(text2, style: Theme.of(context).textTheme.subhead)))
         ]),
         Row(children: <Widget>[
           Expanded(
               child: Padding(
-                  padding: EdgeInsets.fromLTRB(29, 20, 20, 0),
+                  padding: EdgeInsets.fromLTRB(25, 20, 20, 0),
                   child:
                       Text(text3, style: Theme.of(context).textTheme.subhead)))
         ])
