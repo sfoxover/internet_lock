@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.purple,
       ),
-      home: MainPage(title: 'Your Websites'),
+      home: MainPage(title: 'Websites'),
       routes: <String, WidgetBuilder>{
         '/addWebsite': (BuildContext context) => new AddWebsite(),
       },
@@ -70,7 +70,7 @@ class _MainPageState extends State<MainPage> {
               if (snapshot.hasData && snapshot.data.length > 0) {
                 return _getWebsitesView(snapshot);
               } else {
-                return _getEmptyWebsiteList();
+                return _getEmptyWebsiteView();
               }
             }));
   }
@@ -83,17 +83,21 @@ class _MainPageState extends State<MainPage> {
       // User is logged in
       if (isLoggedIn) {
         // Add new website button
-        results.add(IconButtonHelper.createRaisedButton("Add site", Icons.library_add, context, _addWebsiteClick));
+        results.add(IconButtonHelper.createRaisedButton(
+            "Add site", Icons.library_add, context, _addWebsiteClick));
       }
       // Parent logon button
-      results.add(IconButtonHelper.createRaisedButton("Parents", Icons.settings, context, _parentLogonClick));
-      // Allow admin to unpin device      
+      results.add(IconButtonHelper.createRaisedButton(
+          "Parents", Icons.settings, context, _parentLogonClick));
+      // Allow admin to unpin device
       if (isLoggedIn && _isAppPinned) {
-        results.add(IconButtonHelper.createRaisedButton("Unlock $_deviceName", Icons.lock_open, context, _unlockAppsClick));
+        results.add(IconButtonHelper.createRaisedButton(
+            "Unlock $_deviceName", Icons.lock_open, context, _unlockAppsClick));
       }
       // Show icon to lock app
       if (!_isAppPinned) {
-        results.add(IconButtonHelper.createRaisedButton("Lock $_deviceName", Icons.lock, context, _lockAppsClick));
+        results.add(IconButtonHelper.createRaisedButton(
+            "Lock $_deviceName", Icons.lock, context, _lockAppsClick));
       }
       return results;
     } catch (e) {
@@ -232,29 +236,28 @@ class _MainPageState extends State<MainPage> {
   }
 
   // Return placehold website
-  _getEmptyWebsiteList() {
+  _getEmptyWebsiteView() {
     try {
-      print("Loading empty website message for list.");
-      var sites = new List<Website>();
-      sites.add(new Website(
-          id: -1,
-          title: "Click 'Parent logon' to add a new website.",
-          favIconUrl: Defines.SEARCH_FAV_ICON_URL));
-      return ListView.builder(
-        itemCount: sites.length,
-        itemBuilder: (BuildContext context, int index) {
-          Website item = sites[index];
-          return ListTile(
-            title: Text(item.title),
-            leading: Image.network(item.favIconUrl),
-            onTap: () {
-              _parentLogonClick();
-            },
-          );
-        },
-      );
+      String text1 =
+          '\n- Click the "Parents" button to logon and add new websites. \n';
+      String text2 =
+          '- When you want to lock the device to only these websites, click "Lock $_deviceName". \n';
+      String text3 =
+          '- When you are ready to unlock the device, click "Parents" and logon, after that you will then be able to click the "Unlock $_deviceName" button. \n';
+      return Column(children: <Widget>[
+        Card(
+          child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+            ListTile(leading: Icon(Icons.web), title: Text('Welcome'))
+          ]),
+        ),
+        Column(children: <Widget>[
+          Text(text1, textAlign: TextAlign.left),
+          Text(text2, textAlign: TextAlign.left),
+          Text(text3, textAlign: TextAlign.left)
+        ])
+      ]);
     } catch (e) {
-      print("Exception in main::_getEmptyWebsiteList, ${e.toString()}");
+      print("Exception in main::_getEmptyWebsiteView, ${e.toString()}");
       return null;
     }
   }
