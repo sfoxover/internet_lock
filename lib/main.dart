@@ -239,21 +239,33 @@ class _MainPageState extends State<MainPage> {
   _getEmptyWebsiteView() {
     try {
       String text1 =
-          '\n- Click the "Parents" button to logon and add new websites. \n';
+          '- Click the "Parents" button to logon and add new websites.';
       String text2 =
-          '- When you want to lock the device to only these websites, click "Lock $_deviceName". \n';
+          '- When you want to lock the device to only these websites, click "Lock $_deviceName".';
       String text3 =
-          '- When you are ready to unlock the device, click "Parents" and logon, after that you will then be able to click the "Unlock $_deviceName" button. \n';
+          '- When you are ready to unlock the device, click "Parents" and logon, after that you will then be able to click the "Unlock $_deviceName" button.';
       return Column(children: <Widget>[
-        Card(
-          child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-            ListTile(leading: Icon(Icons.web), title: Text('Welcome'))
-          ]),
-        ),
-        Column(children: <Widget>[
-          Text(text1, textAlign: TextAlign.left),
-          Text(text2, textAlign: TextAlign.left),
-          Text(text3, textAlign: TextAlign.left)
+        Card(child: ListTile(leading: Icon(Icons.web), title: Text('Welcome'))),
+        Row(children: <Widget>[
+          Expanded(
+              child: Padding(
+                  padding: EdgeInsets.fromLTRB(29, 20, 20, 0),
+                  child:
+                      Text(text1, style: Theme.of(context).textTheme.subhead)))
+        ]),
+        Row(children: <Widget>[
+          Expanded(
+              child: Padding(
+                  padding: EdgeInsets.fromLTRB(29, 20, 20, 0),
+                  child:
+                      Text(text2, style: Theme.of(context).textTheme.subhead)))
+        ]),
+        Row(children: <Widget>[
+          Expanded(
+              child: Padding(
+                  padding: EdgeInsets.fromLTRB(29, 20, 20, 0),
+                  child:
+                      Text(text3, style: Theme.of(context).textTheme.subhead)))
         ])
       ]);
     } catch (e) {
