@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:internet_lock/helpers/defines.dart';
 import 'package:internet_lock/helpers/lockManager.dart';
 import 'package:internet_lock/models/website.dart';
 import 'package:internet_lock/models/websitesBloc.dart';
@@ -11,6 +10,7 @@ import 'package:internet_lock/views/addWebsiteAdvanced.dart';
 import 'package:internet_lock/views/loadWebsite.dart';
 import 'package:internet_lock/views/parentLogon.dart';
 import 'package:internet_lock/widgets/iconButtonHelper.dart';
+import 'package:flutter_device_type/flutter_device_type.dart';
 
 void main() => runApp(MyApp());
 
@@ -53,6 +53,12 @@ class _MainPageState extends State<MainPage> {
   bool _isAppPinned = false;
   // Poll for app pinned state change
   Timer _timerAppPinned;
+
+  _MainPageState() : super() {
+    if (!Device.get().isTablet) {
+      _deviceName = "Phone";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -241,9 +247,9 @@ class _MainPageState extends State<MainPage> {
       String text1 =
           '1 - Click the "Parents" button to create a user logon with your pin or password. Then add websites you want to allow access to.';
       String text2 =
-          '2 - When you want to lock the device to only these websites, click "Lock $_deviceName".';
+          '2 - When you want to lock the $_deviceName to only these websites, click "Lock $_deviceName".';
       String text3 =
-          '3 - When you are ready to unlock the device, click "Parents" button and logon with the pin or password you created. After that you will then be able to click the "Unlock $_deviceName" button.';
+          '3 - When you are ready to unlock the $_deviceName, click "Parents" button and logon with the pin or password you created. After that you will then be able to click the "Unlock $_deviceName" button.';
       return Column(children: <Widget>[
         Card(
             child: ListTile(

@@ -80,11 +80,15 @@ class _UserLogonState extends State<UserLogon> {
         results.add(IconButtonHelper.createRaisedButton(
             "Add parent", Icons.library_add, context, _addUserClick));
         // Logout parent
+        results.add(IconButtonHelper.createRaisedButton("Logout", Icons.lock,
+            context, () => _userLogout(LockManager.instance.loggedInUser)));
+      } else {
+        // Logon selected parent
         results.add(IconButtonHelper.createRaisedButton(
-            "Logout",
+            "Logon",
             Icons.lock_open,
             context,
-            () => _userLogout(LockManager.instance.loggedInUser)));
+            () => _userLogon(_selectedUser)));
       }
       return results;
     } catch (e) {
@@ -147,8 +151,10 @@ class _UserLogonState extends State<UserLogon> {
           onPressed: () => _deleteUserClick(user)));
     } else {
       // Logon parent
-      buttons.add(IconButtonHelper.createRaisedButton(
-          "Logon", Icons.lock, context, () => _userLogon(user)));
+      buttons.add(IconButton(
+          icon: const Icon(Icons.lock, size: 18.0),
+          color: primary,
+          onPressed: () => _userLogon(user)));
     }
     return new ButtonBar(mainAxisSize: MainAxisSize.min, children: buttons);
   }
