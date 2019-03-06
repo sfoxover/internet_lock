@@ -7,19 +7,22 @@ class WebsitesBloc {
   WebsitesBloc._();
 
   static final WebsitesBloc instance = WebsitesBloc._();
-
   final _clientController = StreamController<List<Website>>.broadcast();
-
   final _dbProvider = new WebsiteDBProvider();
-
   get websites => _clientController.stream;
+
+  // Empty website list flag
+  bool _hasWebsites = false;
+  get hasWebSites => _hasWebsites;
 
   dispose() {
     _clientController.close();
   }
 
   getWebsites() async {
-    _clientController.sink.add(await _dbProvider.getAllWebsites());
+    var sites = await _dbProvider.getAllWebsites();
+    _hasWebsites = sites != null && sites.isNotEmpty;
+    _clientController.sink.add(sites);
   }
 
   WebsitesBloc() {

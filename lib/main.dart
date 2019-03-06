@@ -63,15 +63,6 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
-  // Check for website to allow app pinning
-  _checkCanShowLockAppButton() async {
-    var db = new WebsiteDBProvider();
-    bool empty = await db.isEmpty();
-    setState(() {
-      _canShowLockAppButton = !empty;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -131,6 +122,16 @@ class _MainPageState extends State<MainPage> {
     _checkCanShowLockAppButton();
   }
 
+  // Check for website to allow app pinning
+  _checkCanShowLockAppButton() async {
+    bool hasWebSites = !WebsitesBloc.instance.hasWebSites;
+    setState(() {
+      _canShowLockAppButton = hasWebSites;
+    });
+    print(
+        "checkCanShowLockAppButton: result show lock button $_canShowLockAppButton");
+  }
+
   // Edit website clicked
   void _editWebsiteClick(Website website) {
     try {
@@ -165,8 +166,6 @@ class _MainPageState extends State<MainPage> {
                       onPressed: () {
                         WebsitesBloc.instance.delete(website.id);
                         Navigator.of(context).pop();
-                        // Check for website to allow app pinning
-                        _checkCanShowLockAppButton();
                       },
                     ),
                     new FlatButton(
@@ -261,12 +260,18 @@ class _MainPageState extends State<MainPage> {
   // Return placehold website
   _getEmptyWebsiteView() {
     try {
+      // Check if we can show lock app button
+      if (_canShowLockAppButton) {
+        _checkCanShowLockAppButton();
+      }
+
       String text1 =
           '1 - Click the "Parents" button to create a user logon with your pin or password. Then add websites you want to allow access to.';
       String text2 =
           '2 - When you want to lock the $_deviceName to only these websites, click "Lock $_deviceName".';
       String text3 =
           '3 - When you are ready to unlock the $_deviceName, click "Parents" button and logon with the pin or password you created. After that you will then be able to click the "Unlock $_deviceName" button.';
+
       return Column(children: <Widget>[
         Card(
             child: ListTile(
