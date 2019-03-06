@@ -63,12 +63,13 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
-  @override
-  void initState() async {
-    // Check for website to allow app pinning
+  // Check for website to allow app pinning
+  _checkCanShowLockAppButton() async {
     var db = new WebsiteDBProvider();
-    _canShowLockAppButton = !await db.isEmpty();
-    super.initState();
+    bool empty = await db.isEmpty();
+    setState(() {
+      _canShowLockAppButton = !empty;
+    });
   }
 
   @override
@@ -125,7 +126,9 @@ class _MainPageState extends State<MainPage> {
 
   // Add website clicked
   void _addWebsiteClick() async {
-    Navigator.of(context).pushNamed('/addWebsite');   
+    await Navigator.of(context).pushNamed('/addWebsite');
+    // Check for website to allow app pinning
+    _checkCanShowLockAppButton();
   }
 
   // Edit website clicked
@@ -162,6 +165,8 @@ class _MainPageState extends State<MainPage> {
                       onPressed: () {
                         WebsitesBloc.instance.delete(website.id);
                         Navigator.of(context).pop();
+                        // Check for website to allow app pinning
+                        _checkCanShowLockAppButton();
                       },
                     ),
                     new FlatButton(
