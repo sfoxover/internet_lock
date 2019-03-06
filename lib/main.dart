@@ -94,8 +94,8 @@ class _MainPageState extends State<MainPage> {
         results.add(IconButtonHelper.createRaisedButton(
             "Unlock $_deviceName", Icons.lock_open, context, _unlockAppsClick));
       }
-      // Show icon to lock app
-      if (!_isAppPinned) {
+      // Show icon to lock app if there is at least 1 website
+      if (!_isAppPinned && _selectedWebsite != null) {
         results.add(IconButtonHelper.createRaisedButton(
             "Lock $_deviceName", Icons.lock, context, _lockAppsClick));
       }
@@ -243,9 +243,13 @@ class _MainPageState extends State<MainPage> {
       String text2 =
           '2 - When you want to lock the device to only these websites, click "Lock $_deviceName".';
       String text3 =
-          '3 - When you are ready to unlock the device, click "Parents" and logon with the pin or password you created. After that you will then be able to click the "Unlock $_deviceName" button.';
+          '3 - When you are ready to unlock the device, click "Parents" button and logon with the pin or password you created. After that you will then be able to click the "Unlock $_deviceName" button.';
       return Column(children: <Widget>[
-        Card(child: ListTile(leading: Icon(Icons.web), title: Text('Welcome'))),
+        Card(
+            child: ListTile(
+                leading: Icon(Icons.web),
+                title: Text('Welcome'),
+                subtitle: Text('Please read the quick start guide below.'))),
         Row(children: <Widget>[
           Expanded(
               child: Padding(
