@@ -53,6 +53,8 @@ class _MainPageState extends State<MainPage> {
   bool _isAppPinned = false;
   // Poll for app pinned state change
   Timer _timerAppPinned;
+  // Can show lock app button
+  bool _canShowLockAppButton = false;
 
   _MainPageState() : super() {
     if (!Device.get().isTablet) {
@@ -101,7 +103,7 @@ class _MainPageState extends State<MainPage> {
             "Unlock $_deviceName", Icons.lock_open, context, _unlockAppsClick));
       }
       // Show icon to lock app if there is at least 1 website
-      if (!_isAppPinned && _selectedWebsite != null) {
+      if (!_isAppPinned && _canShowLockAppButton) {
         results.add(IconButtonHelper.createRaisedButton(
             "Lock $_deviceName", Icons.lock, context, _lockAppsClick));
       }
@@ -113,8 +115,14 @@ class _MainPageState extends State<MainPage> {
   }
 
   // Add website clicked
-  void _addWebsiteClick() {
-    Navigator.of(context).pushNamed('/addWebsite');
+  void _addWebsiteClick() async {
+    await Navigator.of(context).pushNamed('/addWebsite');
+    await Future.delayed(const Duration(seconds: 1));
+    if (_selectedWebsite != null) {
+      setState(() {
+        _canShowLockAppButton = true;
+      });
+    }
   }
 
   // Edit website clicked
@@ -171,6 +179,7 @@ class _MainPageState extends State<MainPage> {
     try {
       if (_selectedWebsite == null && snapshot.data.length > 0) {
         _selectedWebsite = snapshot.data[0];
+        _canShowLockAppButton = true;
       }
       return ListView.builder(
           itemCount: snapshot.data.length,
