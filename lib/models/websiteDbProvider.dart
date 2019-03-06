@@ -83,4 +83,16 @@ class WebsiteDBProvider {
     final db = await database;
     db.rawDelete("Delete * from websites");
   }
+
+  isEmpty() async {
+    try {
+      final db = await database;
+      var result = await db.rawQuery("SELECT COUNT(*) from websites");
+      bool empty = (result == null || Sqflite.firstIntValue(result) == 0);
+      return empty;
+    } catch (e) {
+      print("Exception in WebsiteDBProvider::isEmpty, ${e.toString()}");
+    }
+    return true;
+  }
 }

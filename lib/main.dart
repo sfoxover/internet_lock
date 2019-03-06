@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:internet_lock/helpers/lockManager.dart';
 import 'package:internet_lock/models/website.dart';
+import 'package:internet_lock/models/websiteDbProvider.dart';
 import 'package:internet_lock/models/websitesBloc.dart';
 import 'package:internet_lock/views/addWebsite.dart';
 import 'package:internet_lock/views/addWebsiteAdvanced.dart';
@@ -63,6 +64,14 @@ class _MainPageState extends State<MainPage> {
   }
 
   @override
+  void initState() async {
+    // Check for website to allow app pinning
+    var db = new WebsiteDBProvider();
+    _canShowLockAppButton = !await db.isEmpty();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
@@ -116,13 +125,7 @@ class _MainPageState extends State<MainPage> {
 
   // Add website clicked
   void _addWebsiteClick() async {
-    await Navigator.of(context).pushNamed('/addWebsite');
-    await Future.delayed(const Duration(seconds: 1));
-    if (_selectedWebsite != null) {
-      setState(() {
-        _canShowLockAppButton = true;
-      });
-    }
+    Navigator.of(context).pushNamed('/addWebsite');   
   }
 
   // Edit website clicked
