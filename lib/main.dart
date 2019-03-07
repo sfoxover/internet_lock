@@ -55,7 +55,7 @@ class _MainPageState extends State<MainPage> {
   // Poll for app pinned state change
   Timer _timerAppPinned;
   // Can show lock app button
-  bool _canShowLockAppButton = false;
+  final _canShowLockAppButton = ValueNotifier<bool>(false);
 
   _MainPageState() : super() {
     if (!Device.get().isTablet) {
@@ -104,7 +104,7 @@ class _MainPageState extends State<MainPage> {
             "Unlock $_deviceName", Icons.lock_open, context, _unlockAppsClick));
       }
       // Show icon to lock app if there is at least 1 website
-      if (!_isAppPinned && _canShowLockAppButton) {
+      if (!_isAppPinned && _canShowLockAppButton.value) {
         results.add(IconButtonHelper.createRaisedButton(
             "Lock $_deviceName", Icons.lock, context, _lockAppsClick));
       }
@@ -126,10 +126,8 @@ class _MainPageState extends State<MainPage> {
   _checkCanShowLockAppButton() async {
     bool hasWebSites = !WebsitesBloc.instance.hasWebSites;
     setState(() {
-      _canShowLockAppButton = hasWebSites;
+      _canShowLockAppButton.value = hasWebSites;
     });
-    print(
-        "checkCanShowLockAppButton: result show lock button $_canShowLockAppButton");
   }
 
   // Edit website clicked
@@ -166,6 +164,7 @@ class _MainPageState extends State<MainPage> {
                       onPressed: () {
                         WebsitesBloc.instance.delete(website.id);
                         Navigator.of(context).pop();
+                        _checkCanShowLockAppButton();
                       },
                     ),
                     new FlatButton(
@@ -186,7 +185,7 @@ class _MainPageState extends State<MainPage> {
     try {
       if (_selectedWebsite == null && snapshot.data.length > 0) {
         _selectedWebsite = snapshot.data[0];
-        _canShowLockAppButton = true;
+        _canShowLockAppButton.value = true;
       }
       return ListView.builder(
           itemCount: snapshot.data.length,
@@ -261,7 +260,7 @@ class _MainPageState extends State<MainPage> {
   _getEmptyWebsiteView() {
     try {
       // Check if we can show lock app button
-      if (_canShowLockAppButton) {
+      if (_canShowLockAppButton.value) {
         _checkCanShowLockAppButton();
       }
 
