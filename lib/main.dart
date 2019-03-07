@@ -56,6 +56,8 @@ class _MainPageState extends State<MainPage> {
   Timer _timerAppPinned;
   // Can show lock app button
   final _canShowLockAppButton = ValueNotifier<bool>(true);
+  // AppBar key
+  final _appBarKey = new GlobalKey();
 
   _MainPageState() : super() {
     if (!Device.get().isTablet) {
@@ -69,8 +71,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
+         key: _appBarKey,
           title: Text(widget.title),
           actions: _getAppBarButtons(),
         ),
@@ -132,6 +133,7 @@ class _MainPageState extends State<MainPage> {
         setState(() {
           _canShowLockAppButton.value = WebsitesBloc.instance.hasWebSites;
         });
+        build(_appBarKey.currentContext);
       }
       if (timer.tick >= 10) {
         timer.cancel();
