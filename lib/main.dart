@@ -55,7 +55,7 @@ class _MainPageState extends State<MainPage> {
   // Poll for app pinned state change
   Timer _timerAppPinned;
   // Can show lock app button
-  final _canShowLockAppButton = ValueNotifier<bool>(true);
+  bool _canShowLockAppButton = true;
   // AppBar key
   final _appBarKey = new GlobalKey();
 
@@ -107,7 +107,7 @@ class _MainPageState extends State<MainPage> {
             "Unlock $_deviceName", Icons.lock_open, context, _unlockAppsClick));
       }
       // Show icon to lock app if there is at least 1 website
-      if (!_isAppPinned && _canShowLockAppButton.value) {
+      if (!_isAppPinned && _canShowLockAppButton) {
         results.add(IconButtonHelper.createRaisedButton(
             "Lock $_deviceName", Icons.lock, context, _lockAppsClick));
       }
@@ -129,9 +129,9 @@ class _MainPageState extends State<MainPage> {
   _checkCanShowLockAppButton() async {
     // Check state for 2 seconds
     Timer.periodic(const Duration(milliseconds: 200), (Timer timer) {
-      if (_canShowLockAppButton.value != WebsitesBloc.instance.hasWebSites) {
+      if (_canShowLockAppButton != WebsitesBloc.instance.hasWebSites) {
         setState(() {
-          _canShowLockAppButton.value = WebsitesBloc.instance.hasWebSites;
+          _canShowLockAppButton = WebsitesBloc.instance.hasWebSites;
         });
         build(_appBarKey.currentContext);
       }
@@ -196,7 +196,7 @@ class _MainPageState extends State<MainPage> {
     try {
       if (_selectedWebsite == null && snapshot.data.length > 0) {
         _selectedWebsite = snapshot.data[0];
-        _canShowLockAppButton.value = true;
+        _canShowLockAppButton = true;
       }
       return ListView.builder(
           itemCount: snapshot.data.length,
@@ -271,7 +271,7 @@ class _MainPageState extends State<MainPage> {
   _getEmptyWebsiteView() {
     try {
       // Check if we can show lock app button
-      if (_canShowLockAppButton.value) {
+      if (_canShowLockAppButton) {
         _checkCanShowLockAppButton();
       }
 
