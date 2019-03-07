@@ -55,12 +55,14 @@ class _MainPageState extends State<MainPage> {
   // Poll for app pinned state change
   Timer _timerAppPinned;
   // Can show lock app button
-  final _canShowLockAppButton = ValueNotifier<bool>(false);
+  final _canShowLockAppButton = ValueNotifier<bool>(true);
 
   _MainPageState() : super() {
     if (!Device.get().isTablet) {
       _deviceName = "Phone";
     }
+    // Check for website to allow app pinning
+    _checkCanShowLockAppButton();
   }
 
   @override
@@ -124,9 +126,16 @@ class _MainPageState extends State<MainPage> {
 
   // Check for website to allow app pinning
   _checkCanShowLockAppButton() async {
-    bool hasWebSites = !WebsitesBloc.instance.hasWebSites;
-    setState(() {
-      _canShowLockAppButton.value = hasWebSites;
+    // Check state for 2 seconds
+    Timer.periodic(const Duration(milliseconds: 200), (Timer timer) {
+      if (_canShowLockAppButton.value != WebsitesBloc.instance.hasWebSites) {
+        setState(() {
+          _canShowLockAppButton.value = WebsitesBloc.instance.hasWebSites;
+        });
+      }
+      if (timer.tick >= 10) {
+        timer.cancel();
+      }
     });
   }
 
