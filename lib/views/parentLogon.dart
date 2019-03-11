@@ -21,6 +21,8 @@ class _ParentLogonState extends State<ParentLogon> {
   User _selectedUser;
   // Page build context
   BuildContext _mainContext;
+  // Floating button id
+  var _floatingButtonKey = new GlobalKey();
 
   // Constructor
   _ParentLogonState() {
@@ -109,8 +111,12 @@ class _ParentLogonState extends State<ParentLogon> {
   // Load all users list view
   Widget _getUserView(AsyncSnapshot<List<User>> snapshot) {
     try {
-      if (_selectedUser == null && snapshot.data.length > 0) {
-        _selectedUser = snapshot.data[0];
+      if (_selectedUser == null &&
+          snapshot.data != null &&
+          snapshot.data.length > 0) {
+        if (snapshot.data[0] != null) {
+          _selectedUser = snapshot.data[0];
+        }
       }
       return ListView.builder(
           itemCount: snapshot.data.length,
