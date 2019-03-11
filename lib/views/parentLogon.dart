@@ -6,15 +6,15 @@ import 'package:internet_lock/models/userDbProvider.dart';
 import 'package:internet_lock/views/addUser.dart';
 import 'package:internet_lock/widgets/iconButtonHelper.dart';
 
-class UserLogon extends StatefulWidget {
+class ParentLogon extends StatefulWidget {
   // Constructor
-  UserLogon({Key key}) : super(key: key);
+  ParentLogon({Key key}) : super(key: key);
 
   @override
-  _UserLogonState createState() => _UserLogonState();
+  _ParentLogonState createState() => _ParentLogonState();
 }
 
-class _UserLogonState extends State<UserLogon> {
+class _ParentLogonState extends State<ParentLogon> {
   // Selected list item
   int _selectedIndex = 0;
   // Selected website item
@@ -23,7 +23,7 @@ class _UserLogonState extends State<UserLogon> {
   BuildContext _mainContext;
 
   // Constructor
-  _UserLogonState() {
+  _ParentLogonState() {
     _checkForUserAccount();
   }
 
@@ -38,7 +38,7 @@ class _UserLogonState extends State<UserLogon> {
         UserBloc.instance.getUsers();
       }
     } catch (e) {
-      print("Exception in UserLogon::_checkForUserAccount, ${e.toString()}");
+      print("Exception in ParentLogon::_checkForUserAccount, ${e.toString()}");
     }
   }
 
@@ -52,6 +52,7 @@ class _UserLogonState extends State<UserLogon> {
           title: Text("Parent logon"),
           actions: _getAppBarButtons(),
         ),
+        floatingActionButton: _getFloatingButton(),
         body: StreamBuilder<List<User>>(
             stream: UserBloc.instance.users,
             builder:
@@ -84,16 +85,24 @@ class _UserLogonState extends State<UserLogon> {
             context, () => _userLogout(LockManager.instance.loggedInUser)));
       } else {
         // Logon selected parent
-        results.add(IconButtonHelper.createRaisedButton(
-            "Logon",
-            Icons.lock_open,
-            context,
-            () => _userLogon(_selectedUser)));
+        results.add(IconButtonHelper.createRaisedButton("Logon",
+            Icons.lock_open, context, () => _ParentLogon(_selectedUser)));
       }
       return results;
     } catch (e) {
-      print("Exception in UserLogon::_getAppBarButtons, ${e.toString()}");
+      print("Exception in ParentLogon::_getAppBarButtons, ${e.toString()}");
       return null;
+    }
+  }
+
+  // Get floating action button
+  _getFloatingButton() {
+    if (_selectedUser != null) {
+      return new FloatingActionButton(
+        backgroundColor: Theme.of(context).primaryColor,
+        child: new Icon(Icons.lock_open),
+        onPressed: () => _ParentLogon(_selectedUser),
+      );
     }
   }
 
@@ -129,7 +138,7 @@ class _UserLogonState extends State<UserLogon> {
             );
           });
     } catch (e) {
-      print("Exception in UserLogon::_getUserView, ${e.toString()}");
+      print("Exception in ParentLogon::_getUserView, ${e.toString()}");
       return null;
     }
   }
@@ -154,7 +163,7 @@ class _UserLogonState extends State<UserLogon> {
       buttons.add(IconButton(
           icon: const Icon(Icons.lock, size: 18.0),
           color: primary,
-          onPressed: () => _userLogon(user)));
+          onPressed: () => _ParentLogon(user)));
     }
     return new ButtonBar(mainAxisSize: MainAxisSize.min, children: buttons);
   }
@@ -177,7 +186,7 @@ class _UserLogonState extends State<UserLogon> {
                 });
           });
     } catch (e) {
-      print("Exception in UserLogon::_getEmptyList, ${e.toString()}");
+      print("Exception in ParentLogon::_getEmptyList, ${e.toString()}");
       return null;
     }
   }
@@ -191,7 +200,7 @@ class _UserLogonState extends State<UserLogon> {
             builder: (context) => AddUser(),
           ));
     } catch (e) {
-      print("Exception in UserLogon::_addUserClick, ${e.toString()}");
+      print("Exception in ParentLogon::_addUserClick, ${e.toString()}");
     }
   }
 
@@ -207,7 +216,7 @@ class _UserLogonState extends State<UserLogon> {
         );
       }
     } catch (e) {
-      print("Exception in UserLogon::_editUserClick, ${e.toString()}");
+      print("Exception in ParentLogon::_editUserClick, ${e.toString()}");
     }
   }
 
@@ -247,12 +256,12 @@ class _UserLogonState extends State<UserLogon> {
             });
       }
     } catch (ex) {
-      print("Exception in UserLogon::_deleteUserClick, ${ex.toString()}");
+      print("Exception in ParentLogon::_deleteUserClick, ${ex.toString()}");
     }
   }
 
   // Show user logon dialog
-  void _userLogon(User user) {
+  void _ParentLogon(User user) {
     final password = TextEditingController();
     showDialog(
         context: context,
