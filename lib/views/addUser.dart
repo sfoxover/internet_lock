@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internet_lock/helpers/lockManager.dart';
 import 'package:internet_lock/models/user.dart';
 import 'package:internet_lock/models/userBloc.dart';
 import 'package:internet_lock/widgets/iconButtonHelper.dart';
@@ -34,6 +35,11 @@ class _AddUserState extends State<AddUser> {
         appBar: AppBar(
           title: Text('Add parent logon'),
           actions: _getAppBarButtons(),
+        ),
+        floatingActionButton: new FloatingActionButton(
+          backgroundColor: Theme.of(context).primaryColor,
+          child: new Icon(Icons.save),
+          onPressed: () => _saveUser(),
         ),
         body: Form(
           key: _formKey,
@@ -113,7 +119,7 @@ class _AddUserState extends State<AddUser> {
     List<Widget> results = [];
     // Save button
     results.add(IconButtonHelper.createRaisedButton(
-        "Save user", Icons.save_alt, context, _saveSite));
+        "Save user", Icons.save, context, _saveUser));
     // Cancel button
     results.add(IconButtonHelper.createRaisedButton(
         "Cancel", Icons.cancel, context, _cancel));
@@ -121,7 +127,7 @@ class _AddUserState extends State<AddUser> {
   }
 
   // Save user logon details
-  void _saveSite() async {
+  void _saveUser() async {
     if (this._formKey.currentState.validate()) {
       setState(() {
         this._formKey.currentState.save();
@@ -131,6 +137,10 @@ class _AddUserState extends State<AddUser> {
         await UserBloc.instance.edit(_user);
       } else {
         await UserBloc.instance.add(_user);
+      }
+      // Set new parent as logged in user
+      if (LockManager.instance.loggedInUser == null) {
+        LockManager.instance.loggedInUser = _user;
       }
       Navigator.of(context).pop();
     }
