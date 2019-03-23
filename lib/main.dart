@@ -75,6 +75,7 @@ class _MainPageState extends State<MainPage> {
           title: Text(widget.title),
           actions: _getAppBarButtons(),
         ),
+        floatingActionButton: _getFloatingButton(),
         body: StreamBuilder<List<Website>>(
             stream: WebsitesBloc.instance.websites,
             builder:
@@ -115,6 +116,17 @@ class _MainPageState extends State<MainPage> {
     } catch (e) {
       print("Exception in main::_getAppBarButtons, ${e.toString()}");
       return null;
+    }
+  }
+
+  // Get floating action button
+  _getFloatingButton() {
+    if (_selectedWebsite != null) {
+      return new FloatingActionButton(
+        backgroundColor: Theme.of(context).primaryColor,
+        child: new Icon(Icons.open_in_new),
+        onPressed: () => _loadWebsite(_selectedWebsite),
+      );
     }
   }
 
