@@ -71,11 +71,12 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-         key: _appBarKey,
+          key: _appBarKey,
           title: Text(widget.title),
           actions: _getAppBarButtons(),
         ),
-        floatingActionButton: _getFloatingButton(),
+        floatingActionButton: Visibility(
+            visible: _selectedWebsite != null, child: _getFloatingButton()),
         body: StreamBuilder<List<Website>>(
             stream: WebsitesBloc.instance.websites,
             builder:
@@ -121,13 +122,11 @@ class _MainPageState extends State<MainPage> {
 
   // Get floating action button
   _getFloatingButton() {
-    if (_selectedWebsite != null) {
-      return new FloatingActionButton(
-        backgroundColor: Theme.of(context).primaryColor,
-        child: new Icon(Icons.open_in_new),
-        onPressed: () => _loadWebsite(_selectedWebsite),
-      );
-    }
+    return new FloatingActionButton(
+      backgroundColor: Theme.of(context).primaryColor,
+      child: new Icon(Icons.open_in_new),
+      onPressed: () => _loadWebsite(_selectedWebsite),
+    );
   }
 
   // Add website clicked

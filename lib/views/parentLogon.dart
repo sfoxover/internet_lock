@@ -54,7 +54,8 @@ class _ParentLogonState extends State<ParentLogon> {
           title: Text("Parent logon"),
           actions: _getAppBarButtons(),
         ),
-        floatingActionButton: _getFloatingButton(),
+        floatingActionButton:  Visibility(
+            visible: _selectedUser != null, child:_getFloatingButton()),
         body: StreamBuilder<List<User>>(
             stream: UserBloc.instance.users,
             builder:
@@ -99,13 +100,11 @@ class _ParentLogonState extends State<ParentLogon> {
 
   // Get floating action button
   _getFloatingButton() {
-    if (_selectedUser != null) {
       return new FloatingActionButton(
         backgroundColor: Theme.of(context).primaryColor,
         child: new Icon(Icons.lock_open),
         onPressed: () => _ParentLogon(_selectedUser),
       );
-    }
   }
 
   // Load all users list view
