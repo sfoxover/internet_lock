@@ -21,8 +21,6 @@ class _ParentLogonState extends State<ParentLogon> {
   User _selectedUser;
   // Page build context
   BuildContext _mainContext;
-  // Floating button id
-  var _floatingButtonKey = new GlobalKey();
 
   // Constructor
   _ParentLogonState() {
@@ -54,8 +52,16 @@ class _ParentLogonState extends State<ParentLogon> {
           title: Text("Parent logon"),
           actions: _getAppBarButtons(),
         ),
-        floatingActionButton:  Visibility(
-            visible: _selectedUser != null, child:_getFloatingButton()),
+        floatingActionButton: StreamBuilder<List<User>>(
+            stream: UserBloc.instance.users,
+            builder:
+                (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
+              if (snapshot.hasData && snapshot.data.length > 0) {
+                return _getFloatingButton();
+              } else {
+                return Container();
+              }
+            }),
         body: StreamBuilder<List<User>>(
             stream: UserBloc.instance.users,
             builder:
@@ -100,11 +106,11 @@ class _ParentLogonState extends State<ParentLogon> {
 
   // Get floating action button
   _getFloatingButton() {
-      return new FloatingActionButton(
-        backgroundColor: Theme.of(context).primaryColor,
-        child: new Icon(Icons.lock_open),
-        onPressed: () => _ParentLogon(_selectedUser),
-      );
+    return new FloatingActionButton(
+      backgroundColor: Theme.of(context).primaryColor,
+      child: new Icon(Icons.lock_open),
+      onPressed: () => _ParentLogon(_selectedUser),
+    );
   }
 
   // Load all users list view

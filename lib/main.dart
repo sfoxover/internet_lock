@@ -54,8 +54,8 @@ class _MainPageState extends State<MainPage> {
   bool _isAppPinned = false;
   // Poll for app pinned state change
   Timer _timerAppPinned;
-  // Can show lock app button
-  bool _canShowLockAppButton = true;
+  // Can show lock app and floating button
+  bool _listHasValues = true;
   // AppBar key
   final _appBarKey = new GlobalKey();
 
@@ -75,8 +75,16 @@ class _MainPageState extends State<MainPage> {
           title: Text(widget.title),
           actions: _getAppBarButtons(),
         ),
-        floatingActionButton: Visibility(
-            visible: _selectedWebsite != null, child: _getFloatingButton()),
+        floatingActionButton: StreamBuilder<List<Website>>(
+            stream: WebsitesBloc.instance.websites,
+            builder:
+                (BuildContext context, AsyncSnapshot<List<Website>> snapshot) {
+              if (snapshot.hasData && snapshot.data.length > 0) {
+                return _getFloatingButton();
+              } else {
+                return Container();
+              }
+            }),
         body: StreamBuilder<List<Website>>(
             stream: WebsitesBloc.instance.websites,
             builder:
@@ -109,7 +117,7 @@ class _MainPageState extends State<MainPage> {
             "Unlock $_deviceName", Icons.lock_open, context, _unlockAppsClick));
       }
       // Show icon to lock app if there is at least 1 website
-      if (!_isAppPinned && _canShowLockAppButton) {
+      if (!_isAppPinned && _listHasValues) {
         results.add(IconButtonHelper.createRaisedButton(
             "Lock $_deviceName", Icons.lock, context, _lockAppsClick));
       }
@@ -122,11 +130,16 @@ class _MainPageState extends State<MainPage> {
 
   // Get floating action button
   _getFloatingButton() {
-    return new FloatingActionButton(
-      backgroundColor: Theme.of(context).primaryColor,
-      child: new Icon(Icons.open_in_new),
-      onPressed: () => _loadWebsite(_selectedWebsite),
-    );
+    if (_listHasValues) {
+      return new FloatingActionButton(
+        backgroundColor: Theme.of(context).primaryColor,
+        tooltip: "Open selected website",
+        child: new Icon(Icons.open_in_new),
+        onPressed: () => _loadWebsite(_selectedWebsite),
+      );
+    } else {
+      return null;
+    }
   }
 
   // Add website clicked
@@ -140,9 +153,9 @@ class _MainPageState extends State<MainPage> {
   _checkCanShowLockAppButton() async {
     // Check state for 2 seconds
     Timer.periodic(const Duration(milliseconds: 200), (Timer timer) {
-      if (_canShowLockAppButton != WebsitesBloc.instance.hasWebSites) {
+      if (_listHasValues != WebsitesBloc.instance.hasWebSites) {
         setState(() {
-          _canShowLockAppButton = WebsitesBloc.instance.hasWebSites;
+          _listHasValues = WebsitesBloc.instance.hasWebSites;
         });
         build(_appBarKey.currentContext);
       }
@@ -207,7 +220,7 @@ class _MainPageState extends State<MainPage> {
     try {
       if (_selectedWebsite == null && snapshot.data.length > 0) {
         _selectedWebsite = snapshot.data[0];
-        _canShowLockAppButton = true;
+        _listHasValues = true;
       }
       return ListView.builder(
           itemCount: snapshot.data.length,
@@ -282,7 +295,7 @@ class _MainPageState extends State<MainPage> {
   _getEmptyWebsiteView() {
     try {
       // Check if we can show lock app button
-      if (_canShowLockAppButton) {
+      if (_listHasValues) {
         _checkCanShowLockAppButton();
       }
 
