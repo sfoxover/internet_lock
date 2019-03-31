@@ -81,15 +81,16 @@ class _MainPageState extends State<MainPage> {
         appBar: AppBar(
           key: _appBarKey,
           title: Text(widget.title),
-          actions: _getAppBarButtons(),
+          actions: _getAppBarButtons(snapshot),
         ),
         floatingActionButton: _getFloatingButton(snapshot),
         body: _getWebsitesView(snapshot));
   }
 
   // Display AppBar buttons dependent on admin logged in
-  _getAppBarButtons() {
+  _getAppBarButtons(AsyncSnapshot<List<Website>> snapshot) {
     try {
+      _listHasValues = snapshot.hasData && snapshot.data.length > 0;
       List<Widget> results = [];
       bool isLoggedIn = LockManager.instance.loggedInUser != null;
       // User is logged in
@@ -337,13 +338,20 @@ class _MainPageState extends State<MainPage> {
   }
 
   // Handle parent logon click
-  void _parentLogonClick() {
+  void _parentLogonClick() async {
     // Load parent logon page
-    Navigator.push(
+    await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => ParentLogon(),
         ));
+    // Check if we should unpin app
+    if (LockManager.instance.loggedInUser != null) {
+      bool pinnedState = await _checkIfAppPinned();
+      if (pinnedState) {
+        _unlockAppsClick();
+      }
+    }
   }
 
   // Lock device to this app

@@ -45,6 +45,14 @@ class _ParentLogonState extends State<ParentLogon> {
   // Build UI
   @override
   Widget build(BuildContext context) {
+    return StreamBuilder<List<User>>(
+        stream: UserBloc.instance.users,
+        builder: (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
+          return _buildScaffold(snapshot);
+        });
+  }
+
+  Widget _buildScaffold(AsyncSnapshot<List<User>> snapshot) {
     return Scaffold(
         appBar: AppBar(
           // Here we take the value from the MyHomePage object that was created by
@@ -52,27 +60,8 @@ class _ParentLogonState extends State<ParentLogon> {
           title: Text("Parent logon"),
           actions: _getAppBarButtons(),
         ),
-        floatingActionButton: StreamBuilder<List<User>>(
-            stream: UserBloc.instance.users,
-            builder:
-                (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
-              if (snapshot.hasData && snapshot.data.length > 0) {
-                return _getFloatingButton();
-              } else {
-                return Container();
-              }
-            }),
-        body: StreamBuilder<List<User>>(
-            stream: UserBloc.instance.users,
-            builder:
-                (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
-              _mainContext = context;
-              if (snapshot.hasData) {
-                return _getUserView(snapshot);
-              } else {
-                return _getEmptyList();
-              }
-            }));
+        floatingActionButton: _getFloatingButton(snapshot),
+        body: _getUserView(snapshot));
   }
 
   // Display AppBar buttons dependent on admin logged in
@@ -105,49 +94,55 @@ class _ParentLogonState extends State<ParentLogon> {
   }
 
   // Get floating action button
-  _getFloatingButton() {
-    return new FloatingActionButton(
-      backgroundColor: Theme.of(context).primaryColor,
-      child: new Icon(Icons.lock_open),
-      onPressed: () => _ParentLogon(_selectedUser),
-    );
+  _getFloatingButton(AsyncSnapshot<List<User>> snapshot) {
+    if (snapshot.hasData && snapshot.data.length > 0) {
+      return new FloatingActionButton(
+        backgroundColor: Theme.of(context).primaryColor,
+        child: new Icon(Icons.lock_open),
+        onPressed: () => _ParentLogon(_selectedUser),
+      );
+    } else {
+      return Container();
+    }
   }
 
   // Load all users list view
   Widget _getUserView(AsyncSnapshot<List<User>> snapshot) {
     try {
-      if (_selectedUser == null &&
-          snapshot.data != null &&
-          snapshot.data.length > 0) {
-        if (snapshot.data[0] != null) {
-          _selectedUser = snapshot.data[0];
+      if (snapshot.hasData && snapshot.data.length > 0) {
+        if (_selectedUser == null) {
+          if (snapshot.data[0] != null) {
+            _selectedUser = snapshot.data[0];
+          }
         }
+        return ListView.builder(
+            itemCount: snapshot.data.length,
+            itemBuilder: (BuildContext context, int index) {
+              User user = snapshot.data[index];
+              // List view item
+              return new Container(
+                color: _selectedIndex == index
+                    ? Theme.of(context).selectedRowColor
+                    : Theme.of(context).scaffoldBackgroundColor,
+                child: ListTile(
+                  title: Text(user.name),
+                  leading: Icon(Icons.supervised_user_circle),
+                  selected: _selectedIndex == index,
+                  // Logon user button
+                  trailing: _getListItemButtons(user),
+                  // Select list view item
+                  onTap: () {
+                    setState(() {
+                      _selectedIndex = index;
+                      _selectedUser = user;
+                    });
+                  },
+                ),
+              );
+            });
+      } else {
+        return _getEmptyList();
       }
-      return ListView.builder(
-          itemCount: snapshot.data.length,
-          itemBuilder: (BuildContext context, int index) {
-            User user = snapshot.data[index];
-            // List view item
-            return new Container(
-              color: _selectedIndex == index
-                  ? Theme.of(context).selectedRowColor
-                  : Theme.of(context).scaffoldBackgroundColor,
-              child: ListTile(
-                title: Text(user.name),
-                leading: Icon(Icons.supervised_user_circle),
-                selected: _selectedIndex == index,
-                // Logon user button
-                trailing: _getListItemButtons(user),
-                // Select list view item
-                onTap: () {
-                  setState(() {
-                    _selectedIndex = index;
-                    _selectedUser = user;
-                  });
-                },
-              ),
-            );
-          });
     } catch (e) {
       print("Exception in ParentLogon::_getUserView, ${e.toString()}");
       return null;
