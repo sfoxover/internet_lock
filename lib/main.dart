@@ -69,32 +69,22 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    return StreamBuilder<List<Website>>(
+        stream: WebsitesBloc.instance.websites,
+        builder: (BuildContext context, AsyncSnapshot<List<Website>> snapshot) {
+          return _buildScaffold(snapshot);
+        });
+  }
+
+  Widget _buildScaffold(AsyncSnapshot<List<Website>> snapshot) {
     return Scaffold(
         appBar: AppBar(
           key: _appBarKey,
           title: Text(widget.title),
           actions: _getAppBarButtons(),
         ),
-        floatingActionButton: StreamBuilder<List<Website>>(
-            stream: WebsitesBloc.instance.websites,
-            builder:
-                (BuildContext context, AsyncSnapshot<List<Website>> snapshot) {
-              if (snapshot.hasData && snapshot.data.length > 0) {
-                return _getFloatingButton();
-              } else {
-                return Container();
-              }
-            }),
-        body: StreamBuilder<List<Website>>(
-            stream: WebsitesBloc.instance.websites,
-            builder:
-                (BuildContext context, AsyncSnapshot<List<Website>> snapshot) {
-              if (snapshot.hasData && snapshot.data.length > 0) {
-                return _getWebsitesView(snapshot);
-              } else {
-                return _getEmptyWebsiteView();
-              }
-            }));
+        floatingActionButton: _getFloatingButton(snapshot),
+        body: _getWebsitesView(snapshot));
   }
 
   // Display AppBar buttons dependent on admin logged in
@@ -129,8 +119,8 @@ class _MainPageState extends State<MainPage> {
   }
 
   // Get floating action button
-  _getFloatingButton() {
-    if (_listHasValues) {
+  _getFloatingButton(AsyncSnapshot<List<Website>> snapshot) {
+    if (snapshot.hasData && snapshot.data.length > 0) {
       return new FloatingActionButton(
         backgroundColor: Theme.of(context).primaryColor,
         tooltip: "Open selected website",
@@ -138,7 +128,7 @@ class _MainPageState extends State<MainPage> {
         onPressed: () => _loadWebsite(_selectedWebsite),
       );
     } else {
-      return null;
+      return Container();
     }
   }
 
@@ -218,35 +208,41 @@ class _MainPageState extends State<MainPage> {
   // Load all websites
   _getWebsitesView(AsyncSnapshot<List<Website>> snapshot) {
     try {
-      if (_selectedWebsite == null && snapshot.data.length > 0) {
-        _selectedWebsite = snapshot.data[0];
-        _listHasValues = true;
+      // Load list with websites
+      if (snapshot.hasData && snapshot.data.length > 0) {
+        if (_selectedWebsite == null && snapshot.data.length > 0) {
+          _selectedWebsite = snapshot.data[0];
+          _listHasValues = true;
+        }
+        return ListView.builder(
+            itemCount: snapshot.data.length,
+            itemBuilder: (BuildContext context, int index) {
+              Website item = snapshot.data[index];
+              // List view item
+              return new Container(
+                color: _selectedIndex == index
+                    ? Theme.of(context).selectedRowColor
+                    : Theme.of(context).scaffoldBackgroundColor,
+                child: ListTile(
+                  title: Text(item.title),
+                  leading: Image.network(item.favIconUrl, height: 35),
+                  selected: _selectedIndex == index,
+                  // Load website button
+                  trailing: _getListTrailngButtons(item),
+                  onTap: () {
+                    setState(() {
+                      _selectedIndex = index;
+                      _selectedWebsite = item;
+                    });
+                    //_loadWebsite(item);
+                  },
+                ),
+              );
+            });
+      } else {
+        // Show empty websites view
+        return _getEmptyWebsiteView();
       }
-      return ListView.builder(
-          itemCount: snapshot.data.length,
-          itemBuilder: (BuildContext context, int index) {
-            Website item = snapshot.data[index];
-            // List view item
-            return new Container(
-              color: _selectedIndex == index
-                  ? Theme.of(context).selectedRowColor
-                  : Theme.of(context).scaffoldBackgroundColor,
-              child: ListTile(
-                title: Text(item.title),
-                leading: Image.network(item.favIconUrl, height: 35),
-                selected: _selectedIndex == index,
-                // Load website button
-                trailing: _getListTrailngButtons(item),
-                onTap: () {
-                  setState(() {
-                    _selectedIndex = index;
-                    _selectedWebsite = item;
-                  });
-                  //_loadWebsite(item);
-                },
-              ),
-            );
-          });
     } catch (e) {
       print("Exception in main::_getWebsitesView, ${e.toString()}");
       return null;
