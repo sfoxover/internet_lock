@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internet_lock/helpers/helpers.dart';
 import 'package:internet_lock/helpers/lockManager.dart';
 import 'package:internet_lock/models/user.dart';
 import 'package:internet_lock/models/userBloc.dart';
@@ -21,6 +22,8 @@ class _ParentLogonState extends State<ParentLogon> {
   User _selectedUser;
   // Page build context
   BuildContext _mainContext;
+  // Check if app is pinned
+  bool _isAppPinned = false;
 
   // Constructor
   _ParentLogonState() {
@@ -37,6 +40,7 @@ class _ParentLogonState extends State<ParentLogon> {
       } else {
         UserBloc.instance.getUsers();
       }
+      _isAppPinned = await Helpers.checkIfAppPinned();
     } catch (e) {
       print("Exception in ParentLogon::_checkForUserAccount, ${e.toString()}");
     }
@@ -65,7 +69,7 @@ class _ParentLogonState extends State<ParentLogon> {
   }
 
   // Display AppBar buttons dependent on admin logged in
-  _getAppBarButtons() {
+  List<Widget> _getAppBarButtons() {
     try {
       List<Widget> results = [];
       if (LockManager.instance.loggedInUser != null) {
@@ -82,9 +86,18 @@ class _ParentLogonState extends State<ParentLogon> {
         results.add(IconButtonHelper.createRaisedButton("Logout", Icons.lock,
             context, () => _userLogout(LockManager.instance.loggedInUser)));
       } else {
-        // Logon selected parent
-        results.add(IconButtonHelper.createRaisedButton("Logon",
-            Icons.lock_open, context, () => _ParentLogon(_selectedUser)));
+        if (_isAppPinned) {
+          // Logon will unpin app
+          results.add(IconButtonHelper.createRaisedButton(
+              "Unlock" + Helpers.getDeviceName(),
+              Icons.lock_open,
+              context,
+              () => _ParentLogon(_selectedUser)));
+        } else {
+          // Logon selected parent
+          results.add(IconButtonHelper.createRaisedButton("Logon",
+              Icons.lock_open, context, () => _ParentLogon(_selectedUser)));
+        }
       }
       return results;
     } catch (e) {
@@ -166,10 +179,12 @@ class _ParentLogonState extends State<ParentLogon> {
           onPressed: () => _deleteUserClick(user)));
     } else {
       // Logon parent
-      buttons.add(IconButton(
-          icon: const Icon(Icons.lock, size: 18.0),
-          color: primary,
-          onPressed: () => _ParentLogon(user)));
+      if (_selectedUser == user) {
+        buttons.add(IconButton(
+            icon: const Icon(Icons.lock, size: 18.0),
+            color: primary,
+            onPressed: () => _ParentLogon(user)));
+      }
     }
     return new ButtonBar(mainAxisSize: MainAxisSize.min, children: buttons);
   }
@@ -285,9 +300,7 @@ class _ParentLogonState extends State<ParentLogon> {
                   child: new Text("OK"),
                   onPressed: () {
                     if (user.passwordMatches(password.text)) {
-                      setState(() {
-                        LockManager.instance.loggedInUser = user;
-                      });
+                      LockManager.instance.loggedInUser = user;
                       Navigator.of(context).popUntil(ModalRoute.withName('/'));
                     } else {
                       final snackBar = SnackBar(

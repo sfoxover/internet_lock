@@ -1,5 +1,7 @@
 // Static helper methods
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_device_type/flutter_device_type.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:internet_lock/helpers/defines.dart';
 
@@ -58,5 +60,29 @@ class Helpers {
       }
     } catch (e) {}
     return true;
+  }
+
+  // Test if app is pinned
+  static Future<bool> checkIfAppPinned() async {
+    bool pinned = false;
+    try {
+      final platform = const MethodChannel('com.sfoxover.internetlock/lockapp');
+      var result = await platform.invokeMethod("getLockedStatus");
+      if (result == "locked") {
+        pinned = true;
+      }
+    } catch (e) {
+      print("Exception in helpers::_checkIfAppPinned, ${e.toString()}");
+    }
+    return pinned;
+  }
+
+  // Get device name
+  static String getDeviceName() {
+    String name = "Tablet";
+    if (!Device.get().isTablet) {
+      name = "Phone";
+    }
+    return name;
   }
 }

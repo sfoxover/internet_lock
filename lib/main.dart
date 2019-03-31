@@ -2,16 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:internet_lock/helpers/helpers.dart';
 import 'package:internet_lock/helpers/lockManager.dart';
 import 'package:internet_lock/models/website.dart';
-import 'package:internet_lock/models/websiteDbProvider.dart';
 import 'package:internet_lock/models/websitesBloc.dart';
 import 'package:internet_lock/views/addWebsite.dart';
 import 'package:internet_lock/views/addWebsiteAdvanced.dart';
 import 'package:internet_lock/views/loadWebsite.dart';
 import 'package:internet_lock/views/parentLogon.dart';
 import 'package:internet_lock/widgets/iconButtonHelper.dart';
-import 'package:flutter_device_type/flutter_device_type.dart';
 
 void main() => runApp(MyApp());
 
@@ -49,7 +48,7 @@ class _MainPageState extends State<MainPage> {
   // Selected website item
   Website _selectedWebsite;
   // Device name
-  String _deviceName = "Tablet";
+  String _deviceName;
   // Check if app is pinned
   bool _isAppPinned = false;
   // Poll for app pinned state change
@@ -60,9 +59,7 @@ class _MainPageState extends State<MainPage> {
   final _appBarKey = new GlobalKey();
 
   _MainPageState() : super() {
-    if (!Device.get().isTablet) {
-      _deviceName = "Phone";
-    }
+    _deviceName = Helpers.getDeviceName();
     // Check for website to allow app pinning
     _checkCanShowLockAppButton();
   }
@@ -268,13 +265,15 @@ class _MainPageState extends State<MainPage> {
           icon: const Icon(Icons.delete, size: 18.0),
           color: primary,
           onPressed: () => _deleteWebsiteClick(website)));
+    } else {
+      // Load website button
+      if (_selectedWebsite == website) {
+        buttons.add(IconButton(
+            icon: const Icon(Icons.play_arrow, size: 18.0),
+            color: primary,
+            onPressed: () => _loadWebsite(website)));
+      }
     }
-    // Load website button
-    buttons.add(IconButton(
-        icon: const Icon(Icons.play_arrow, size: 18.0),
-        color: primary,
-        onPressed: () => _loadWebsite(website)));
-
     return new ButtonBar(mainAxisSize: MainAxisSize.min, children: buttons);
   }
 
@@ -347,9 +346,13 @@ class _MainPageState extends State<MainPage> {
         ));
     // Check if we should unpin app
     if (LockManager.instance.loggedInUser != null) {
-      bool pinnedState = await _checkIfAppPinned();
+      bool pinnedState = await Helpers.checkIfAppPinned();
       if (pinnedState) {
-        _unlockAppsClick();
+        await _unlockAppsClick();
+        // log out parent after unlock
+        setState(() {
+          LockManager.instance.loggedInUser = null;
+        });
       }
     }
   }
@@ -357,7 +360,7 @@ class _MainPageState extends State<MainPage> {
   // Lock device to this app
   void _lockAppsClick() async {
     try {
-      bool pinnedState = await _checkIfAppPinned();
+      bool pinnedState = await Helpers.checkIfAppPinned();
       // App already pinned, just update button state
       if (pinnedState) {
         setState(() {
@@ -381,7 +384,7 @@ class _MainPageState extends State<MainPage> {
   // Unlock device
   void _unlockAppsClick() async {
     try {
-      bool pinnedState = await _checkIfAppPinned();
+      bool pinnedState = await Helpers.checkIfAppPinned();
       // App already unlocked, just update button state
       if (!pinnedState) {
         setState(() {
@@ -406,24 +409,9 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
-  // Test if app is pinned
-  Future<bool> _checkIfAppPinned() async {
-    bool pinned = false;
-    try {
-      final platform = const MethodChannel('com.sfoxover.internetlock/lockapp');
-      var result = await platform.invokeMethod("getLockedStatus");
-      if (result == "locked") {
-        pinned = true;
-      }
-    } catch (e) {
-      print("Exception in main::_checkIfAppPinned, ${e.toString()}");
-    }
-    return pinned;
-  }
-
   // Test for app pinned state change for 60 seconds
   _pollForLockStateChange(Timer timer) async {
-    bool pinnedState = await _checkIfAppPinned();
+    bool pinnedState = await Helpers.checkIfAppPinned();
     if (pinnedState && !_isAppPinned) {
       setState(() {
         _isAppPinned = true;
