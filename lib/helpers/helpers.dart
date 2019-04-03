@@ -85,4 +85,9 @@ class Helpers {
     }
     return name;
   }
+
+  // Check if android device
+  static bool getIsAndroidDevice() {
+    return Device.get().isAndroid;
+  }
 }

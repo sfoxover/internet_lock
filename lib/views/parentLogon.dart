@@ -62,14 +62,14 @@ class _ParentLogonState extends State<ParentLogon> {
           // Here we take the value from the MyHomePage object that was created by
           // the App.build method, and use it to set our appbar title.
           title: Text("Parent logon"),
-          actions: _getAppBarButtons(),
+          actions: _getAppBarButtons(snapshot),
         ),
         floatingActionButton: _getFloatingButton(snapshot),
         body: _getUserView(snapshot));
   }
 
   // Display AppBar buttons dependent on admin logged in
-  List<Widget> _getAppBarButtons() {
+  List<Widget> _getAppBarButtons(AsyncSnapshot<List<User>> snapshot) {
     try {
       List<Widget> results = [];
       if (LockManager.instance.loggedInUser != null) {
@@ -93,7 +93,7 @@ class _ParentLogonState extends State<ParentLogon> {
               Icons.lock_open,
               context,
               () => _ParentLogon(_selectedUser)));
-        } else {
+        } else if (snapshot.hasData && snapshot.data.length > 0) {
           // Logon selected parent
           results.add(IconButtonHelper.createRaisedButton("Logon",
               Icons.lock_open, context, () => _ParentLogon(_selectedUser)));

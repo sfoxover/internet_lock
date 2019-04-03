@@ -72,7 +72,7 @@ class _AddWebsiteAdvancedState extends State<AddWebsiteAdvanced> {
                     if (value.isEmpty) {
                       return 'Please enter the url for this website.';
                     } else if (Helpers.isSearchUriMatch(value)) {
-                      return 'Please enter the url for this website. Do not enter the url of the search result.';
+                      return 'Please do not enter the url of the search site or result.';
                     }
                   },
                 ),

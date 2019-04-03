@@ -296,11 +296,16 @@ class _MainPageState extends State<MainPage> {
       }
 
       String text1 =
-          '1 - Click the "Parents" button to create a user logon with your pin or password. Then add websites you want to allow access to.';
+          '1 - Click the "Parents" button in the toolbar above to create a user logon with your pin or password. Then add only websites you want to allow access to.';
       String text2 =
           '2 - When you want to lock the $_deviceName to only these websites, click "Lock $_deviceName".';
+      // Add text for android devices
+      if (Helpers.getIsAndroidDevice()) {
+        text2 +=
+            ' (You may see a "Screen is pinned" message, just click "GOT IT" to lock the $_deviceName)';
+      }
       String text3 =
-          '3 - When you are ready to unlock the $_deviceName, click "Parents" button and logon with the pin or password you created. After that you will then be able to click the "Unlock $_deviceName" button.';
+          '3 - When you are ready to unlock the $_deviceName, click "Parents" button and logon with the pin or password you created. After that you will be able to unlock your $_deviceName. (You might be prompted to unlock with your fingerprint as well).';
 
       return Column(children: <Widget>[
         Card(
