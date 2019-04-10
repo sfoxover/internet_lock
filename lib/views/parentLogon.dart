@@ -4,7 +4,9 @@ import 'package:internet_lock/helpers/lockManager.dart';
 import 'package:internet_lock/models/user.dart';
 import 'package:internet_lock/models/userBloc.dart';
 import 'package:internet_lock/models/userDbProvider.dart';
+import 'package:internet_lock/models/websitesBloc.dart';
 import 'package:internet_lock/views/addUser.dart';
+import 'package:internet_lock/views/addWebsite.dart';
 import 'package:internet_lock/widgets/iconButtonHelper.dart';
 
 class ParentLogon extends StatefulWidget {
@@ -75,7 +77,7 @@ class _ParentLogonState extends State<ParentLogon> {
       if (LockManager.instance.loggedInUser != null) {
         // Edit websites
         results.add(IconButtonHelper.createRaisedButton(
-            "Add/edit website",
+            "Show websites",
             Icons.web_asset,
             context,
             () => Navigator.of(context).popUntil(ModalRoute.withName('/'))));
@@ -213,13 +215,21 @@ class _ParentLogonState extends State<ParentLogon> {
   }
 
   // Load add user page
-  void _addUserClick() {
+  void _addUserClick() async {
     try {
-      Navigator.push(
+      await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => AddUser(),
           ));
+      // Jump to add website if there are none
+      if (!WebsitesBloc.instance.hasWebSites) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddWebsite(),
+            ));
+      }
     } catch (e) {
       print("Exception in ParentLogon::_addUserClick, ${e.toString()}");
     }

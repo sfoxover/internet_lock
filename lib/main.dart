@@ -1,7 +1,7 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:internet_lock/helpers/defines.dart';
 import 'package:internet_lock/helpers/helpers.dart';
 import 'package:internet_lock/helpers/lockManager.dart';
 import 'package:internet_lock/models/website.dart';
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.purple,
       ),
-      home: MainPage(title: 'Websites'),
+      home: MainPage(title: '${Defines.APP_TITLE}'),
       routes: <String, WidgetBuilder>{
         '/addWebsite': (BuildContext context) => new AddWebsite(),
       },
@@ -311,7 +311,7 @@ class _MainPageState extends State<MainPage> {
         Card(
             child: ListTile(
                 leading: Icon(Icons.web),
-                title: Text('Welcome'),
+                title: Text('Welcome to ${Defines.APP_TITLE}'),
                 subtitle: Text('Please read the quick start guide below.'))),
         Row(children: <Widget>[
           Expanded(

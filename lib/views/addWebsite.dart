@@ -18,11 +18,11 @@ class _AddWebsiteState extends State<AddWebsite> {
   String _websiteUrl;
   // Website title
   String _websiteTitle;
-  // Webview single instance
-  final _browser = new FlutterWebviewPlugin();
   // Widget identifiers
   GlobalKey _appBarKey = GlobalKey();
   GlobalKey _mainViewKey = GlobalKey();
+  // Webview single instance
+  final _browser = new FlutterWebviewPlugin();
 
   // Constructor
   _AddWebsiteState() {
